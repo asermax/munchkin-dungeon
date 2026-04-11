@@ -129,7 +129,7 @@ godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --script r
 godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --script res://tools/setup_scenes.gd
 
 # Web export (after templates installed)
-godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --export-debug "Web" build/index.html
+godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --export-release "Web" build/index.html
 
 # Serve web build
 cd build && python3 -m http.server 8000

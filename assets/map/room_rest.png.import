@@ -3,19 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkts122r2n1fj"
-path="res://.godot/imported/room_rest.png-46a2b32dc12f09e73005d081cff9f8bf.ctex"
+path.s3tc="res://.godot/imported/room_rest.png-46a2b32dc12f09e73005d081cff9f8bf.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/map/room_rest.png"
-dest_files=["res://.godot/imported/room_rest.png-46a2b32dc12f09e73005d081cff9f8bf.ctex"]
+dest_files=["res://.godot/imported/room_rest.png-46a2b32dc12f09e73005d081cff9f8bf.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -36,5 +37,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=128
 detect_3d/compress_to=1
