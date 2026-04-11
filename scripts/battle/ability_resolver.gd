@@ -45,13 +45,20 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource) -> Arr
 		if not target.is_alive:
 			continue
 
+		# Row penalty: melee reaching back row is harder to land and weaker
+		var row_penalty: bool = ability.reach == "melee" and target.row == "back"
+		var effective_dodge := target.dodge_chance
+
+		if row_penalty:
+			effective_dodge = minf(0.65, target.dodge_chance + 0.25)
+
 		var attack_result := StatCalculator.resolve_attack(
 			attacker_damage,
 			user.crit_chance,
 			user.crit_multiplier,
 			user.trait_id,
 			target.defense,
-			target.dodge_chance,
+			effective_dodge,
 			target.trait_id,
 			ability.power,
 		)
@@ -65,10 +72,16 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource) -> Arr
 			"crit": attack_result.crit,
 			"amount": 0,
 			"killed": false,
+			"row_penalty": row_penalty,
 		}
 
 		if not attack_result.dodged:
-			var actual := target.take_damage(attack_result.final_damage)
+			var final_dmg: int = attack_result.final_damage
+
+			if row_penalty:
+				final_dmg = maxi(1, floori(final_dmg * 0.75))
+
+			var actual := target.take_damage(final_dmg)
 			result.amount = actual
 			result.killed = not target.is_alive
 

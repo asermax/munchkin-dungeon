@@ -112,9 +112,17 @@ func _select_targets(actor: BattleUnit, ability: Resource, allies: Array, enemie
 
 func _pick_enemy_target(actor: BattleUnit, ability: Resource, enemies: Array) -> BattleUnit:
 	var valid: Array = []
+	var melee_reach := false
 
 	if ability.reach == "melee":
 		valid = _get_melee_targets(enemies)
+
+		# Chance to reach through front line and target back row
+		if not valid.is_empty() and randf() < 0.30:
+			var back := enemies.filter(func(u: BattleUnit) -> bool: return u.is_alive and u.row == "back")
+			if not back.is_empty():
+				valid.append_array(back)
+				melee_reach = true
 	else:
 		valid = enemies.filter(func(u: BattleUnit) -> bool: return u.is_alive)
 
@@ -138,13 +146,8 @@ func _pick_enemy_target(actor: BattleUnit, ability: Resource, enemies: Array) ->
 				lowest = enemy
 		return lowest
 
-	# Default: pick the enemy with lowest current HP (focus fire)
-	var target: BattleUnit = valid[0]
-	for enemy: BattleUnit in valid:
-		if enemy.current_hp < target.current_hp:
-			target = enemy
-
-	return target
+	# Default: weighted random — damaged targets are more likely (focus fire tendency)
+	return _weighted_random_target(valid, melee_reach)
 
 
 func _pick_ally_target(ability: Resource, allies: Array) -> BattleUnit:
@@ -194,3 +197,35 @@ func _find_basic_attack(actor: BattleUnit) -> Resource:
 			return ab
 
 	return null
+
+
+func _weighted_random_target(targets: Array, melee_reach: bool = false) -> BattleUnit:
+	if targets.size() == 1:
+		return targets[0]
+
+	# Weight by damage taken — more damaged targets are more likely to be focused
+	# Full HP: weight 1.0, at 50% HP: weight 2.0, at 10% HP: weight 2.8
+	var weights: Array[float] = []
+	for target: BattleUnit in targets:
+		var damage_ratio := 1.0 - (float(target.current_hp) / float(target.max_hp))
+		var weight := 1.0 + damage_ratio * 2.0
+
+		# Back-row targets are harder to reach with melee
+		if melee_reach and target.row == "back":
+			weight *= 0.4
+
+		weights.append(weight)
+
+	var total_weight := 0.0
+	for w: float in weights:
+		total_weight += w
+
+	var roll := randf() * total_weight
+	var cumulative := 0.0
+
+	for i in range(targets.size()):
+		cumulative += weights[i]
+		if roll <= cumulative:
+			return targets[i]
+
+	return targets[-1]
