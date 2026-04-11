@@ -1,0 +1,17 @@
+# Godot
+.godot/
+
+# Build
+build/
+
+# MCP server (installed locally, re-install from zip)
+.mcp-server/
+
+# Environment
+.env
+config.env
+__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db

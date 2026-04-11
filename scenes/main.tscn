@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/battle/battlefield.tscn" id="1_o5qli"]
+
+[node name="Main" type="Node2D" unique_id=865179317]
+
+[node name="BattleCamera" type="Camera2D" parent="." unique_id=1768103112]
+
+[node name="Battlefield" type="Node2D" parent="." unique_id=113239617 instance=ExtResource("1_o5qli")]

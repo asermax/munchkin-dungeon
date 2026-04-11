@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[node name="Battlefield" type="Node2D" unique_id=113239617]
+
+[node name="GridManager" type="Node2D" parent="." unique_id=317308407]
+
+[node name="ClickHandler" type="Node" parent="GridManager" unique_id=1613774837]
