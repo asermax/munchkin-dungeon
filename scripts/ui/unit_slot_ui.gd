@@ -66,28 +66,28 @@ func flash_heal() -> void:
 func show_damage_number(amount: int, is_crit: bool) -> void:
 	var popup := DamagePopup.new()
 	popup.position = Vector2(size.x / 2.0, size.y * 0.3)
-	add_child(popup)
+	_sprite.add_child(popup)
 	popup.setup_damage(amount, is_crit)
 
 
 func show_heal_number(amount: int) -> void:
 	var popup := DamagePopup.new()
 	popup.position = Vector2(size.x / 2.0, size.y * 0.3)
-	add_child(popup)
+	_sprite.add_child(popup)
 	popup.setup_heal(amount)
 
 
 func show_dodge() -> void:
 	var popup := DamagePopup.new()
 	popup.position = Vector2(size.x / 2.0, size.y * 0.3)
-	add_child(popup)
+	_sprite.add_child(popup)
 	popup.setup_dodge()
 
 
 func _show_slash() -> void:
 	var slash := SlashEffect.new()
 	slash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(slash)
+	_sprite.add_child(slash)
 	slash.play()
 
 
