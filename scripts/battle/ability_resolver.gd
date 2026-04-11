@@ -3,6 +3,11 @@ extends RefCounted
 
 ## Executes abilities and returns results for the battle log.
 
+const ROW_PENALTY_DODGE_BONUS: float = 0.25
+const ROW_PENALTY_DODGE_CAP: float = 0.65
+const ROW_PENALTY_DAMAGE_MULTIPLIER: float = 0.75
+const RESURRECT_HP_PERCENT: float = 0.1
+
 
 func resolve(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array = []) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
@@ -55,7 +60,7 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource, source
 		var effective_dodge := target.dodge_chance
 
 		if row_penalty:
-			effective_dodge = minf(0.65, target.dodge_chance + 0.25)
+			effective_dodge = minf(ROW_PENALTY_DODGE_CAP, target.dodge_chance + ROW_PENALTY_DODGE_BONUS)
 
 		var attack_result := StatCalculator.resolve_attack(
 			attacker_damage,
@@ -84,7 +89,7 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource, source
 			var final_dmg: int = attack_result.final_damage
 
 			if row_penalty:
-				final_dmg = maxi(1, floori(final_dmg * 0.75))
+				final_dmg = maxi(1, floori(final_dmg * ROW_PENALTY_DAMAGE_MULTIPLIER))
 
 			var actual := target.take_damage(final_dmg)
 			result.amount = actual
@@ -226,8 +231,7 @@ func _resolve_resurrect(user: BattleUnit, targets: Array, ability: Resource) -> 
 	var target: BattleUnit = targets[0]
 	target.is_alive = true
 
-	# Revive at 10% HP
-	var revive_hp := maxi(1, floori(target.max_hp * 0.1))
+	var revive_hp := maxi(1, floori(target.max_hp * RESURRECT_HP_PERCENT))
 	target.current_hp = revive_hp
 
 	return [{
@@ -271,7 +275,8 @@ func _cleanse(target: BattleUnit) -> int:
 			removed += 1
 
 	to_remove.reverse()
+
 	for i: int in to_remove:
-		target.active_effects.remove_at(i)
+		target.remove_effect(i)
 
 	return removed

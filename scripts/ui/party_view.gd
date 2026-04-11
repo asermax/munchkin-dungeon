@@ -118,51 +118,19 @@ func _hero_display_info(hero_data: Resource) -> Dictionary:
 
 
 func _sort_by_formation(heroes: Array) -> Array:
-	## Assign formation positions (same logic as BattleManager) and sort by slot index.
-	var front_count := 0
-	var back_count := 0
-	var formation: Array = []
+	## Assign formation positions and sort by visual slot index.
+	var prefs: Array = heroes.map(
+		func(h: Resource) -> String: return h.get("unit_class").get("preferred_row"),
+	)
+	var formations := FormationUtils.assign_formation(prefs)
 
-	for hero_data: Resource in heroes:
-		var unit_class: Resource = hero_data.get("unit_class")
-		var preferred: String = unit_class.get("preferred_row")
+	var paired: Array = []
 
-		var assigned_row: String
-		var assigned_slot: int
+	for i in range(heroes.size()):
+		paired.append({hero = heroes[i], row = formations[i].row, slot = formations[i].slot})
 
-		if preferred == "front" and front_count < 2:
-			assigned_row = "front"
-			assigned_slot = front_count
-			front_count += 1
-		elif preferred == "back" and back_count < 2:
-			assigned_row = "back"
-			assigned_slot = back_count
-			back_count += 1
-		elif front_count < 2:
-			assigned_row = "front"
-			assigned_slot = front_count
-			front_count += 1
-		else:
-			assigned_row = "back"
-			assigned_slot = back_count
-			back_count += 1
-
-		formation.append({
-			hero = hero_data,
-			row = assigned_row,
-			slot = assigned_slot,
-		})
-
-	# Sort by visual slot index (same formula as BattleUI._hero_slot_index)
-	formation.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return _slot_sort_key(a.row, a.slot) < _slot_sort_key(b.row, b.slot)
+	paired.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return FormationUtils.hero_slot_index(a.row, a.slot) < FormationUtils.hero_slot_index(b.row, b.slot)
 	)
 
-	return formation.map(func(f: Dictionary) -> Resource: return f.hero)
-
-
-func _slot_sort_key(row: String, slot: int) -> int:
-	## Same ordering as BattleUI: back_1=0, back_0=1, front_1=2, front_0=3
-	if row == "front":
-		return 3 - slot
-	return 1 - slot
+	return paired.map(func(f: Dictionary) -> Resource: return f.hero)

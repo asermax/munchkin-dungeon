@@ -22,6 +22,10 @@ signal boss_phase_changed(unit_info: Dictionary, phase: int)
 ## UI
 signal battle_setup(hero_units: Array, monster_units: Array)
 signal speed_changed(new_speed: float)
+signal speed_requested(speed: float)
+
+## State sync
+signal battle_hero_state_updated(hero_states: Dictionary)
 
 ## Dungeon navigation
 signal dungeon_started(dungeon: Resource)

@@ -5,6 +5,10 @@ extends RefCounted
 ## Walks the unit's ability list (ordered by ai_priority descending),
 ## picks the first whose condition is met and cooldown is ready.
 
+const MELEE_BACKROW_REACH_CHANCE: float = 0.30
+const MELEE_BACKROW_WEIGHT: float = 0.4
+const FOCUS_FIRE_WEIGHT: float = 2.0
+
 var _basic_attack: Resource     # fallback AbilityData
 
 
@@ -118,7 +122,7 @@ func _pick_enemy_target(actor: BattleUnit, ability: Resource, enemies: Array) ->
 		valid = _get_melee_targets(enemies)
 
 		# Chance to reach through front line and target back row
-		if not valid.is_empty() and randf() < 0.30:
+		if not valid.is_empty() and randf() < MELEE_BACKROW_REACH_CHANCE:
 			var back := enemies.filter(func(u: BattleUnit) -> bool: return u.is_alive and u.row == "back")
 			if not back.is_empty():
 				valid.append_array(back)
@@ -208,11 +212,11 @@ func _weighted_random_target(targets: Array, melee_reach: bool = false) -> Battl
 	var weights: Array[float] = []
 	for target: BattleUnit in targets:
 		var damage_ratio := 1.0 - (float(target.current_hp) / float(target.max_hp))
-		var weight := 1.0 + damage_ratio * 2.0
+		var weight := 1.0 + damage_ratio * FOCUS_FIRE_WEIGHT
 
 		# Back-row targets are harder to reach with melee
 		if melee_reach and target.row == "back":
-			weight *= 0.4
+			weight *= MELEE_BACKROW_WEIGHT
 
 		weights.append(weight)
 

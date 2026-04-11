@@ -8,6 +8,26 @@ extends RefCounted
 ## classes (RaceData, ClassData, etc.) aren't resolvable at compile time
 ## when used as base Resource type.
 
+# -- Balance Constants --
+const BASE_HP: int = 50
+const VIT_HP_MULTIPLIER: int = 8
+const STR_DAMAGE_MULTIPLIER: int = 2
+const INT_DAMAGE_MULTIPLIER: int = 2
+const AGI_INITIATIVE_MULTIPLIER: int = 3
+const AGI_DODGE_PER_POINT: float = 0.02
+const DODGE_CAP: float = 0.40
+const LUCK_CRIT_PER_POINT: float = 0.03
+const CRIT_CHANCE_CAP: float = 0.30
+const CRIT_MULTI_BASE: float = 2.0
+const CRIT_MULTI_PER_LUCK: float = 0.1
+const CRIT_MULTI_CAP: float = 3.0
+const DEFENSE_REDUCTION_PER_POINT: float = 0.02
+const DEFENSE_REDUCTION_CAP: float = 0.80
+const MIN_DAMAGE: int = 1
+const THICK_SKULL_CRIT_REDUCTION: float = 0.5
+const FORESIGHT_DODGE_BONUS: float = 0.10
+const STURDY_DEFENSE_BONUS: int = 3
+
 
 static func compute_hero_stats(unit_data: Resource) -> Dictionary:
 	var race: Resource = unit_data.get("race")
@@ -51,23 +71,23 @@ static func compute_hero_stats(unit_data: Resource) -> Dictionary:
 	var final_luck: int = primary_luck + equip_luck
 
 	# Derived stats
-	var max_hp: int = 50 + (final_vit * 8) + hp_bonus
-	var damage: int = final_str * 2 + weapon_bonus
-	var magic_damage: int = final_int * 2 + weapon_bonus
+	var max_hp: int = BASE_HP + (final_vit * VIT_HP_MULTIPLIER) + hp_bonus
+	var damage: int = final_str * STR_DAMAGE_MULTIPLIER + weapon_bonus
+	var magic_damage: int = final_int * INT_DAMAGE_MULTIPLIER + weapon_bonus
 	var defense: int = final_vit + armor_bonus
-	var initiative: int = final_agi * 3 + init_bonus
-	var dodge_chance: float = minf(0.40, final_agi * 0.02)
-	var crit_chance: float = minf(0.30, final_luck * 0.03)
-	var crit_multiplier: float = minf(3.0, 2.0 + final_luck * 0.1)
+	var initiative: int = final_agi * AGI_INITIATIVE_MULTIPLIER + init_bonus
+	var dodge_chance: float = minf(DODGE_CAP, final_agi * AGI_DODGE_PER_POINT)
+	var crit_chance: float = minf(CRIT_CHANCE_CAP, final_luck * LUCK_CRIT_PER_POINT)
+	var crit_multiplier: float = minf(CRIT_MULTI_CAP, CRIT_MULTI_BASE + final_luck * CRIT_MULTI_PER_LUCK)
 
 	# Racial trait adjustments
 	var trait_id: String = _gs(race, "trait_id")
 
 	if trait_id == "foresight":
-		dodge_chance = minf(0.40, dodge_chance + 0.10)
+		dodge_chance = minf(DODGE_CAP, dodge_chance + FORESIGHT_DODGE_BONUS)
 
 	if trait_id == "sturdy":
-		defense += 3
+		defense += STURDY_DEFENSE_BONUS
 
 	return {
 		"max_hp": max_hp,
@@ -107,17 +127,16 @@ static func resolve_attack(
 	if is_crit:
 		raw *= attacker_crit_multiplier
 
-		# Thick skull: 50% less crit damage taken
+		# Thick skull: reduced crit bonus damage
 		if defender_trait == "thick_skull":
 			var bonus_crit_damage: float = raw - (attacker_damage * ability_power)
-			raw -= bonus_crit_damage * 0.5
+			raw -= bonus_crit_damage * THICK_SKULL_CRIT_REDUCTION
 
-	# Step 4: Defense reduction — min(80%, defense * 2%)
-	var reduction: float = minf(0.80, defender_defense * 0.02)
+	# Step 4: Defense reduction
+	var reduction: float = minf(DEFENSE_REDUCTION_CAP, defender_defense * DEFENSE_REDUCTION_PER_POINT)
 	var reduced: float = raw * (1.0 - reduction)
 
-	# Minimum 1 damage
-	var final_damage: int = maxi(1, floori(reduced))
+	var final_damage: int = maxi(MIN_DAMAGE, floori(reduced))
 
 	return {"dodged": false, "crit": is_crit, "final_damage": final_damage}
 

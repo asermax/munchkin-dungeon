@@ -151,12 +151,7 @@ func tick_effects() -> Array[Dictionary]:
 
 		# Tick DoT effects
 		if effect.type == "bleed" or effect.type == "poison":
-			var dot_damage := mini(effect.value, current_hp)
-			current_hp -= dot_damage
-
-			if current_hp <= 0:
-				current_hp = 0
-				is_alive = false
+			var dot_damage := take_damage(effect.value)
 
 			results.append({
 				"effect": effect.type,
@@ -173,19 +168,16 @@ func tick_effects() -> Array[Dictionary]:
 	to_remove.reverse()
 
 	for i: int in to_remove:
-		var effect: Dictionary = active_effects[i]
-
-		# Undo buff effects on expiry
-		if effect.type == "defense_up":
-			defense -= effect.value
-		elif effect.type == "damage_up":
-			damage -= effect.value
-		elif effect.type == "dodge_up":
-			dodge_chance -= effect.value * 0.01
-
-		active_effects.remove_at(i)
+		remove_effect(i)
 
 	return results
+
+
+func remove_effect(index: int) -> void:
+	## Removes an effect at the given index, reverting any stat changes it applied.
+	var effect: Dictionary = active_effects[index]
+	_revert_effect_stats(effect)
+	active_effects.remove_at(index)
 
 
 func is_ability_ready(ability_id: String) -> bool:
@@ -197,14 +189,17 @@ func use_ability(ability_id: String, cooldown_turns: int) -> void:
 		cooldowns[ability_id] = cooldown_turns
 
 
+## Maps buff effect types to their stat property and scale factor.
+## Apply: property += value * scale. Revert: property -= value * scale.
+const BUFF_STAT_MAP: Dictionary = {
+	"defense_up": {"property": &"defense", "scale": 1.0},
+	"damage_up": {"property": &"damage", "scale": 1.0},
+	"dodge_up": {"property": &"dodge_chance", "scale": 0.01},
+}
+
+
 func apply_effect(effect_id: String, effect_name: String, duration: int, value: int, type: String) -> void:
-	# Apply immediate stat changes for buffs
-	if type == "defense_up":
-		defense += value
-	elif type == "damage_up":
-		damage += value
-	elif type == "dodge_up":
-		dodge_chance += value * 0.01
+	_apply_effect_stats(type, value)
 
 	active_effects.append({
 		"id": effect_id,
@@ -213,6 +208,18 @@ func apply_effect(effect_id: String, effect_name: String, duration: int, value: 
 		"value": value,
 		"type": type,
 	})
+
+
+func _apply_effect_stats(type: String, value: int) -> void:
+	if type in BUFF_STAT_MAP:
+		var meta: Dictionary = BUFF_STAT_MAP[type]
+		set(meta.property, get(meta.property) + value * meta.scale)
+
+
+func _revert_effect_stats(effect: Dictionary) -> void:
+	if effect.type in BUFF_STAT_MAP:
+		var meta: Dictionary = BUFF_STAT_MAP[effect.type]
+		set(meta.property, get(meta.property) - effect.value * meta.scale)
 
 
 func has_effect(effect_type: String) -> bool:

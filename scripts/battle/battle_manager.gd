@@ -7,6 +7,7 @@ extends Node
 var turn_queue: TurnQueue
 var ability_ai: AbilityAI
 var ability_resolver: AbilityResolver
+var _result_emitter: BattleResultEmitter
 
 var hero_units: Array = []         # Array of BattleUnit
 var enemy_units: Array = []        # Array of BattleUnit
@@ -27,6 +28,7 @@ func _ready() -> void:
 	turn_queue = TurnQueue.new()
 	ability_ai = AbilityAI.new()
 	ability_resolver = AbilityResolver.new()
+	_result_emitter = BattleResultEmitter.new()
 
 
 func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {}) -> void:
@@ -38,34 +40,14 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 	_battle_result = ""
 
 	# Create hero BattleUnits and assign formation
-	var front_count := 0
-	var back_count := 0
+	var hero_prefs: Array = heroes.map(
+		func(h: Resource) -> String: return h.get("unit_class").get("preferred_row"),
+	)
+	var hero_formations := FormationUtils.assign_formation(hero_prefs)
 
-	for hero_data: Resource in heroes:
-		var unit_class: Resource = hero_data.get("unit_class")
-		var preferred: String = unit_class.get("preferred_row")
-
-		var assigned_row: String
-		var assigned_slot: int
-
-		if preferred == "front" and front_count < 2:
-			assigned_row = "front"
-			assigned_slot = front_count
-			front_count += 1
-		elif preferred == "back" and back_count < 2:
-			assigned_row = "back"
-			assigned_slot = back_count
-			back_count += 1
-		elif front_count < 2:
-			assigned_row = "front"
-			assigned_slot = front_count
-			front_count += 1
-		else:
-			assigned_row = "back"
-			assigned_slot = back_count
-			back_count += 1
-
-		var unit := BattleUnit.from_hero(hero_data, "hero", assigned_row, assigned_slot)
+	for i in range(heroes.size()):
+		var f: Dictionary = hero_formations[i]
+		var unit := BattleUnit.from_hero(heroes[i], "hero", f.row, f.slot)
 
 		# Apply persisted HP from previous battles
 		if hero_state.has(unit.unit_id):
@@ -75,34 +57,16 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 		hero_units.append(unit)
 
 	# Create enemy BattleUnits from encounter
-	var e_front := 0
-	var e_back := 0
+	var enemy_prefs: Array = []
 
 	for i in range(encounter.monsters.size()):
-		var monster_data: Resource = encounter.monsters[i]
-		var row_pref: String = encounter.formation[i] if i < encounter.formation.size() else "front"
+		enemy_prefs.append(encounter.formation[i] if i < encounter.formation.size() else "front")
 
-		var m_row: String
-		var m_slot: int
+	var enemy_formations := FormationUtils.assign_formation(enemy_prefs)
 
-		if row_pref == "front" and e_front < 2:
-			m_row = "front"
-			m_slot = e_front
-			e_front += 1
-		elif row_pref == "back" and e_back < 2:
-			m_row = "back"
-			m_slot = e_back
-			e_back += 1
-		elif e_front < 2:
-			m_row = "front"
-			m_slot = e_front
-			e_front += 1
-		else:
-			m_row = "back"
-			m_slot = e_back
-			e_back += 1
-
-		var unit := BattleUnit.from_monster(monster_data, "enemy", m_row, m_slot)
+	for i in range(encounter.monsters.size()):
+		var f: Dictionary = enemy_formations[i]
+		var unit := BattleUnit.from_monster(encounter.monsters[i], "enemy", f.row, f.slot)
 
 		# Make IDs unique when the same monster appears multiple times
 		unit.unit_id = "%s_%d" % [unit.unit_id, i]
@@ -119,9 +83,9 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 	all_units.append_array(enemy_units)
 	turn_queue.setup(all_units)
 
-	# Register in GameState
-	GameState.battle_manager = self
-	GameState.turn_queue = turn_queue
+	# Listen for speed change requests from UI
+	if not EventBus.speed_requested.is_connected(set_speed):
+		EventBus.speed_requested.connect(set_speed)
 
 	# Signal UI to set up
 	EventBus.battle_setup.emit(
@@ -170,111 +134,41 @@ func _execute_turn(unit: BattleUnit) -> void:
 
 	# Process DoT effects at start of turn
 	var dot_results := unit.tick_effects()
+	_result_emitter.emit_dot_results(dot_results, unit)
 
-	for dot: Dictionary in dot_results:
-		EventBus.action_resolved.emit({
-			"type": "dot",
-			"target": unit.get_display_info(),
-			"effect": dot.effect,
-			"amount": dot.damage,
-		})
-
-	# Check if unit died from DoT
 	if not unit.is_alive:
 		_handle_death(unit)
 		EventBus.turn_ended.emit(unit.get_display_info())
-
-		if _check_battle_end():
-			return
-
+		_check_battle_end()
 		return
 
-	# Check if stunned
 	if unit.is_stunned():
-		EventBus.action_resolved.emit({
-			"type": "stunned",
-			"actor": unit.get_display_info(),
-		})
+		_result_emitter.emit_stunned(unit)
 		EventBus.turn_ended.emit(unit.get_display_info())
 		return
 
-	# Determine allies and enemies for AI
-	var allies: Array
-	var enemies: Array
-	var dead_ally_list: Array
-
-	if unit.is_hero:
-		allies = hero_units
-		enemies = enemy_units
-		dead_ally_list = dead_heroes
-	else:
-		allies = enemy_units
-		enemies = hero_units
-		dead_ally_list = dead_enemies
-
 	# AI picks action
-	var action := ability_ai.choose_action(unit, allies, enemies, dead_ally_list)
-	var ability: Resource = action.ability
-	var targets: Array = action.targets
+	var sides := _get_sides(unit)
+	var action := ability_ai.choose_action(unit, sides.allies, sides.enemies, sides.dead_allies)
 
-	if ability == null or targets.is_empty():
+	if action.ability == null or action.targets.is_empty():
 		EventBus.turn_ended.emit(unit.get_display_info())
 		return
 
 	# Determine the pool of units that targets were drawn from
 	var source_pool: Array = []
 
-	match ability.target_type:
+	match action.ability.target_type:
 		"enemy", "all_enemies":
-			source_pool = enemies
+			source_pool = sides.enemies
 		"ally", "all_allies":
-			source_pool = allies
+			source_pool = sides.allies
 
-	# Resolve ability
-	var results := ability_resolver.resolve(unit, targets, ability, source_pool)
-
-	# Emit results — use fresh display info from the actual unit (not the
-	# pre-action snapshot stored in result.target)
-	for result: Dictionary in results:
-		var target_id: String = result.get("target", {}).get("unit_id", "")
-		var target_unit: BattleUnit = _find_unit(target_id)
-
-		# Fresh info reflects post-damage/heal state
-		var fresh_target: Dictionary = target_unit.get_display_info() if target_unit != null else result.get("target", {})
-		result["target"] = fresh_target
-
-		EventBus.action_resolved.emit(result)
-
-		match result.get("type", ""):
-			"damage":
-				if result.get("dodged", false):
-					pass
-				else:
-					EventBus.unit_damaged.emit(fresh_target, result.get("amount", 0), result.get("crit", false))
-
-					if result.get("killed", false):
-						if target_unit != null:
-							_handle_death(target_unit)
-
-					elif target_unit != null and target_unit.is_alive and target_unit.check_phase2():
-						EventBus.boss_phase_changed.emit(target_unit.get_display_info(), 2)
-
-			"heal":
-				EventBus.unit_healed.emit(fresh_target, result.get("amount", 0))
-
-			"buff", "debuff", "taunt":
-				var buff_name: String = result.get("effect", result.get("ability_name", ""))
-				var duration: int = result.get("duration", 0)
-				EventBus.buff_applied.emit(fresh_target, buff_name, duration)
-
-			"resurrect":
-				if target_unit != null:
-					_handle_resurrect(target_unit)
-
-				EventBus.unit_healed.emit(fresh_target, result.get("amount", 0))
+	# Resolve ability and emit results
+	var results := ability_resolver.resolve(unit, action.targets, action.ability, source_pool)
+	_result_emitter.emit_action_results(results, _find_unit, _handle_death, _handle_resurrect)
 
 	EventBus.turn_ended.emit(unit.get_display_info())
-
 	_check_battle_end()
 
 
@@ -309,16 +203,39 @@ func _check_battle_end() -> bool:
 	if not enemies_alive:
 		_battle_result = "victory"
 		is_battle_active = false
+		_emit_hero_state()
 		EventBus.battle_ended.emit({"result": "victory"})
 		return true
 
 	if not heroes_alive:
 		_battle_result = "defeat"
 		is_battle_active = false
+		_emit_hero_state()
 		EventBus.battle_ended.emit({"result": "defeat"})
 		return true
 
 	return false
+
+
+func _emit_hero_state() -> void:
+	var states: Dictionary = {}
+
+	for unit: BattleUnit in hero_units:
+		states[unit.unit_id] = {
+			current_hp = unit.current_hp,
+			max_hp = unit.max_hp,
+			is_alive = unit.is_alive,
+		}
+
+	EventBus.battle_hero_state_updated.emit(states)
+
+
+func _get_sides(unit: BattleUnit) -> Dictionary:
+	## Returns {allies, enemies, dead_allies} arrays relative to the given unit.
+	if unit.is_hero:
+		return {allies = hero_units, enemies = enemy_units, dead_allies = dead_heroes}
+
+	return {allies = enemy_units, enemies = hero_units, dead_allies = dead_enemies}
 
 
 func _handle_death(unit: BattleUnit) -> void:

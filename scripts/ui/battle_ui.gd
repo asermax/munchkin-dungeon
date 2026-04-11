@@ -18,7 +18,10 @@ extends CanvasLayer
 @onready var _hero_slots: Array = [%HeroSlot0, %HeroSlot1, %HeroSlot2, %HeroSlot3]
 @onready var _monster_slots: Array = [%MonsterSlot0, %MonsterSlot1, %MonsterSlot2, %MonsterSlot3]
 
+const MAX_LOG_LINES: int = 200
+
 var _unit_slot_map: Dictionary = {}
+var _log_line_count: int = 0
 
 
 func _ready() -> void:
@@ -55,10 +58,11 @@ func _connect_speed_buttons() -> void:
 func _on_battle_setup(heroes: Array, monsters: Array) -> void:
 	_unit_slot_map.clear()
 	_log_text.clear()
+	_log_line_count = 0
 
 	# Heroes: back row on the left, front row on the right (closest to enemies)
 	for info: Dictionary in heroes:
-		var slot_idx: int = _hero_slot_index(info["row"], info["slot"])
+		var slot_idx: int = FormationUtils.hero_slot_index(info["row"], info["slot"])
 
 		if slot_idx >= 0 and slot_idx < _hero_slots.size():
 			_hero_slots[slot_idx].setup(info)
@@ -66,7 +70,7 @@ func _on_battle_setup(heroes: Array, monsters: Array) -> void:
 
 	# Monsters: front row on the left (closest to heroes), back row on the right
 	for info: Dictionary in monsters:
-		var slot_idx: int = _monster_slot_index(info["row"], info["slot"])
+		var slot_idx: int = FormationUtils.monster_slot_index(info["row"], info["slot"])
 
 		if slot_idx >= 0 and slot_idx < _monster_slots.size():
 			_monster_slots[slot_idx].setup(info)
@@ -101,6 +105,12 @@ func _show_result_overlay(result: Dictionary) -> void:
 
 func _on_round_started(round_number: int) -> void:
 	_round_label.text = "Round %d" % round_number
+
+	if _log_line_count > MAX_LOG_LINES:
+		_log_text.clear()
+		_log_line_count = 0
+		_log("[color=gray]--- Earlier log cleared ---[/color]")
+
 	_log("\n[color=white]--- Round %d ---[/color]" % round_number)
 
 
@@ -110,11 +120,15 @@ func _on_action_resolved(action_info: Dictionary) -> void:
 	if line != "":
 		_log(line)
 
-	_refresh_slot(action_info.get("actor", {}))
-	_refresh_slot(action_info.get("target", {}))
+	# Refresh slots only for action types without dedicated unit_damaged/unit_healed signals
+	var action_type: String = action_info.get("type", "")
+
+	if action_type in ["buff", "debuff", "taunt", "cleanse", "dot", "stunned"]:
+		_refresh_slot(action_info.get("actor", {}))
+		_refresh_slot(action_info.get("target", {}))
 
 	# Show dodge popup on the target
-	if action_info.get("type", "") == "damage" and action_info.get("dodged", false):
+	if action_type == "damage" and action_info.get("dodged", false):
 		var target_id: String = action_info.get("target", {}).get("unit_id", "")
 		var slot: UnitSlotUI = _unit_slot_map.get(target_id)
 
@@ -164,8 +178,7 @@ func _on_speed_changed(new_speed: float) -> void:
 
 
 func _on_speed_pressed(speed: float) -> void:
-	if GameState.battle_manager != null:
-		GameState.battle_manager.set_speed(speed)
+	EventBus.speed_requested.emit(speed)
 
 
 func _on_log_toggled(pressed: bool) -> void:
@@ -260,21 +273,8 @@ func _refresh_slot(info: Dictionary) -> void:
 
 
 func _log(text: String) -> void:
+	_log_line_count += 1
 	_log_text.append_text(text + "\n")
 
 	await get_tree().process_frame
 	_log_scroll.scroll_vertical = _log_scroll.get_v_scroll_bar().max_value
-
-
-func _hero_slot_index(row: String, slot: int) -> int:
-	## Heroes: [back_1, back_0, front_1, front_0] — back on far left, front_0 rightmost (near enemies)
-	if row == "front":
-		return 3 - slot
-	return 1 - slot
-
-
-func _monster_slot_index(row: String, slot: int) -> int:
-	## Monsters: [front_0, front_1, back_0, back_1] — front row on the left
-	if row == "front":
-		return slot
-	return 2 + slot

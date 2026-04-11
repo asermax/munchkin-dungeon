@@ -65,6 +65,7 @@ func _connect_signals() -> void:
 	_dungeon_manager.rest_entered.connect(_on_rest_entered)
 
 	EventBus.battle_ended.connect(_on_battle_ended)
+	EventBus.battle_hero_state_updated.connect(_on_hero_state_updated)
 	EventBus.room_entered.connect(_on_room_entered)
 	EventBus.room_completed.connect(_on_room_completed)
 	EventBus.dungeon_completed.connect(_on_dungeon_completed)
@@ -117,9 +118,6 @@ func _on_battle_requested(encounter: EncounterData) -> void:
 
 
 func _on_battle_ended(result: Dictionary) -> void:
-	# Save hero state from battle before despawning
-	_save_hero_state()
-
 	# Wait for the result overlay to show briefly
 	await get_tree().create_timer(1.5).timeout
 	_despawn_battle()
@@ -259,16 +257,9 @@ func _get_alive_heroes() -> Array:
 	return alive
 
 
-func _save_hero_state() -> void:
-	if _battle_manager == null:
-		return
-
-	for unit: BattleUnit in _battle_manager.hero_units:
-		_hero_state[unit.unit_id] = {
-			current_hp = unit.current_hp,
-			max_hp = unit.max_hp,
-			is_alive = unit.is_alive,
-		}
+func _on_hero_state_updated(states: Dictionary) -> void:
+	for hero_id: String in states:
+		_hero_state[hero_id] = states[hero_id]
 
 
 func _rebuild_party_view() -> void:

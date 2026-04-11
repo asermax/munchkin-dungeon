@@ -4,6 +4,8 @@ extends RefCounted
 ## Round-based initiative sorting.
 ## Each round, all living units are sorted by initiative and each acts once.
 
+const INITIATIVE_JITTER: int = 4
+
 var _units: Array = []          # All BattleUnit references
 var _turn_order: Array = []     # Sorted for current round
 var _current_index: int = 0
@@ -25,7 +27,7 @@ func start_round() -> void:
 	var jittered: Dictionary = {}
 
 	for unit: BattleUnit in _turn_order:
-		jittered[unit] = unit.initiative + randi_range(-4, 4)
+		jittered[unit] = unit.initiative + randi_range(-INITIATIVE_JITTER, INITIATIVE_JITTER)
 
 	_turn_order.sort_custom(func(a: BattleUnit, b: BattleUnit) -> bool:
 		var a_init: int = jittered[a]
