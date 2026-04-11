@@ -29,8 +29,8 @@ func _ready() -> void:
 	ability_resolver = AbilityResolver.new()
 
 
-func setup_battle(heroes: Array, encounter: Resource) -> void:
-	## heroes: Array of UnitData, encounter: EncounterData
+func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {}) -> void:
+	## heroes: Array of UnitData, encounter: EncounterData, hero_state: persisted HP/alive state
 	hero_units.clear()
 	enemy_units.clear()
 	dead_heroes.clear()
@@ -66,6 +66,12 @@ func setup_battle(heroes: Array, encounter: Resource) -> void:
 			back_count += 1
 
 		var unit := BattleUnit.from_hero(hero_data, "hero", assigned_row, assigned_slot)
+
+		# Apply persisted HP from previous battles
+		if hero_state.has(unit.unit_id):
+			var state: Dictionary = hero_state[unit.unit_id]
+			unit.current_hp = state.current_hp
+
 		hero_units.append(unit)
 
 	# Create enemy BattleUnits from encounter
@@ -215,8 +221,17 @@ func _execute_turn(unit: BattleUnit) -> void:
 		EventBus.turn_ended.emit(unit.get_display_info())
 		return
 
+	# Determine the pool of units that targets were drawn from
+	var source_pool: Array = []
+
+	match ability.target_type:
+		"enemy", "all_enemies":
+			source_pool = enemies
+		"ally", "all_allies":
+			source_pool = allies
+
 	# Resolve ability
-	var results := ability_resolver.resolve(unit, targets, ability)
+	var results := ability_resolver.resolve(unit, targets, ability, source_pool)
 
 	# Emit results — use fresh display info from the actual unit (not the
 	# pre-action snapshot stored in result.target)

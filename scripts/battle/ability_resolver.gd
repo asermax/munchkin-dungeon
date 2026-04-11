@@ -4,21 +4,21 @@ extends RefCounted
 ## Executes abilities and returns results for the battle log.
 
 
-func resolve(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dictionary]:
+func resolve(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array = []) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
 
 	match ability.effect_type:
 		"damage":
-			results = _resolve_damage(user, targets, ability)
+			results = _resolve_damage(user, targets, ability, source_pool)
 
 		"heal":
-			results = _resolve_heal(user, targets, ability)
+			results = _resolve_heal(user, targets, ability, source_pool)
 
 		"buff":
-			results = _resolve_buff(user, targets, ability)
+			results = _resolve_buff(user, targets, ability, source_pool)
 
 		"debuff":
-			results = _resolve_debuff(user, targets, ability)
+			results = _resolve_debuff(user, targets, ability, source_pool)
 
 		"taunt":
 			results = _resolve_taunt(user, ability)
@@ -32,7 +32,7 @@ func resolve(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dicti
 	return results
 
 
-func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dictionary]:
+func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
 
 	# Determine which damage stat to use
@@ -43,10 +43,15 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource) -> Arr
 
 	for target: BattleUnit in targets:
 		if not target.is_alive:
-			continue
+			var replacement := _find_living_replacement(targets, source_pool)
+			if replacement == null:
+				continue
+			target = replacement
 
 		# Row penalty: melee reaching back row is harder to land and weaker
-		var row_penalty: bool = ability.reach == "melee" and target.row == "back"
+		# Only applies when the enemy front line is alive to provide cover
+		var front_alive := source_pool.any(func(u: BattleUnit) -> bool: return u.is_alive and u.row == "front")
+		var row_penalty: bool = ability.reach == "melee" and target.row == "back" and front_alive
 		var effective_dodge := target.dodge_chance
 
 		if row_penalty:
@@ -101,12 +106,15 @@ func _resolve_damage(user: BattleUnit, targets: Array, ability: Resource) -> Arr
 	return results
 
 
-func _resolve_heal(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dictionary]:
+func _resolve_heal(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
 
 	for target: BattleUnit in targets:
 		if not target.is_alive:
-			continue
+			var replacement := _find_living_replacement(targets, source_pool)
+			if replacement == null:
+				continue
+			target = replacement
 
 		var healed := target.heal(ability.heal_amount)
 
@@ -121,12 +129,15 @@ func _resolve_heal(user: BattleUnit, targets: Array, ability: Resource) -> Array
 	return results
 
 
-func _resolve_buff(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dictionary]:
+func _resolve_buff(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
 
 	for target: BattleUnit in targets:
 		if not target.is_alive:
-			continue
+			var replacement := _find_living_replacement(targets, source_pool)
+			if replacement == null:
+				continue
+			target = replacement
 
 		# Cleanse: remove negative effects instead of buffing
 		if ability.secondary_effect == "cleanse":
@@ -162,12 +173,15 @@ func _resolve_buff(user: BattleUnit, targets: Array, ability: Resource) -> Array
 	return results
 
 
-func _resolve_debuff(user: BattleUnit, targets: Array, ability: Resource) -> Array[Dictionary]:
+func _resolve_debuff(user: BattleUnit, targets: Array, ability: Resource, source_pool: Array) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
 
 	for target: BattleUnit in targets:
 		if not target.is_alive:
-			continue
+			var replacement := _find_living_replacement(targets, source_pool)
+			if replacement == null:
+				continue
+			target = replacement
 
 		if ability.secondary_effect != "":
 			target.apply_effect(
@@ -223,6 +237,17 @@ func _resolve_resurrect(user: BattleUnit, targets: Array, ability: Resource) -> 
 		"ability_name": ability.display_name,
 		"amount": revive_hp,
 	}]
+
+
+func _find_living_replacement(current_targets: Array, source_pool: Array) -> BattleUnit:
+	var candidates := source_pool.filter(func(u: BattleUnit) -> bool:
+		return u.is_alive and not current_targets.has(u)
+	)
+
+	if candidates.is_empty():
+		return null
+
+	return candidates[randi() % candidates.size()]
 
 
 func _apply_secondary(target: BattleUnit, ability: Resource) -> void:
