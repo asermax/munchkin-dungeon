@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/tuskling.tres" id="1_io5re"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/war_boar.tres" id="2_wphch"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/bristle_spitter.tres" id="3_4lq5m"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="4_q2u5f"]
+
+[resource]
+script = ExtResource("4_q2u5f")
+id = "cave_medium_1"
+display_name = "Spikeling Warband"
+difficulty = "medium"
+monsters = Array[Resource]([ExtResource("1_io5re"), ExtResource("1_io5re"), ExtResource("2_wphch"), ExtResource("3_4lq5m")])
+formation = Array[String](["front", "front", "front", "back"])

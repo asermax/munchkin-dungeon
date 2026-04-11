@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sdoi4"]
+
+[resource]
+script = ExtResource("1_sdoi4")
+id = "gore"
+display_name = "Gore"
+description = "Gores the target, causing bleed."
+cooldown = 2
+power = 1.5
+secondary_effect = "bleed"
+secondary_chance = 0.7
+secondary_duration = 3
+secondary_value = 4
+ai_priority = 20

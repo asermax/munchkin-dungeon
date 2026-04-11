@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_xkgfe"]
+
+[resource]
+script = ExtResource("1_xkgfe")
+id = "chain_vestments"
+display_name = "Chain Vestments"
+slot = "armor"
+required_class = "cleric"
+bonus_defense = 3
+bonus_hp = 8

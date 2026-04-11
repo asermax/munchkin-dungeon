@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/mage/chain_lightning.tres" id="1_oh764"]
+[ext_resource type="Resource" path="res://data/abilities/mage/frost.tres" id="2_a5vvi"]
+[ext_resource type="Resource" path="res://data/abilities/mage/fireball.tres" id="3_et4w3"]
+[ext_resource type="Resource" path="res://data/abilities/mage/arcane_shield.tres" id="4_62p5u"]
+[ext_resource type="Resource" path="res://data/abilities/mage/mana_drain.tres" id="5_wkftd"]
+[ext_resource type="Resource" path="res://data/abilities/mage/arcane_bolt.tres" id="6_sjuk8"]
+[ext_resource type="Resource" path="res://data/abilities/basic_attack.tres" id="7_cuoi5"]
+[ext_resource type="Script" path="res://resources/class_data.gd" id="8_ntoji"]
+
+[resource]
+script = ExtResource("8_ntoji")
+id = "mage"
+display_name = "Mage"
+base_str = 2
+base_agi = 4
+base_vit = 3
+base_int = 8
+base_luck = 4
+str_per_level = 0.0
+int_per_level = 1.5
+abilities = Array[Resource]([ExtResource("1_oh764"), ExtResource("2_a5vvi"), ExtResource("3_et4w3"), ExtResource("4_62p5u"), ExtResource("5_wkftd"), ExtResource("6_sjuk8"), ExtResource("7_cuoi5")])
+preferred_row = "back"
+color = Color(0.6, 0.3, 0.8, 1)
+sprite_path = "res://assets/sprites/mage.png"

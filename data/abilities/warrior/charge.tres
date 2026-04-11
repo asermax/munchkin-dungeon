@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_nl4yb"]
+
+[resource]
+script = ExtResource("1_nl4yb")
+id = "charge"
+display_name = "Charge"
+description = "Charges an enemy for 1.4x damage."
+cooldown = 2
+power = 1.4
+ai_priority = 30

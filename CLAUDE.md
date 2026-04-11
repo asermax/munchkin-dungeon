@@ -1,51 +1,72 @@
 # Munchkin Dungeon — Godot Project
 
-Isometric tactical game on a grid with height/elevation. Built with Godot 4.6.
+Munchkin × Darkest Dungeon mashup. Auto-battle with formation-based combat. Built with Godot 4.6. PostHog event edition — all monsters are hog/pig mutations.
 
 ## Tech Stack
 
 - **Engine**: Godot 4.6.2 (GDScript)
 - **Renderer**: GL Compatibility (required for WebAssembly export)
-- **LLM**: z.ai GLM API for AI-powered game logic
+- **LLM**: z.ai GLM API for AI-powered game logic (future)
 - **Export**: WebAssembly (runs in browser)
 - **MCP**: GDAI MCP plugin for Claude Code integration
 
 ## Architecture
 
-The game engine is agnostic about who issues commands. Both human input and AI output produce the same Action objects:
-- Human: UI clicks → Action
-- LLM: game state → prompt → response → parse → Action
-- Fallback AI: game state → heuristic → Action
+Auto-battle system with formation-based combat (2 front + 2 back per side). The player builds a party and watches battles unfold — no real-time control during fights.
 
 ### Core Systems
-- **GridManager**: isometric coordinate conversion, height map, unit positions
+- **BattleManager** (Node): orchestrates the auto-battle loop, paces actions with a timer
+- **TurnQueue** (RefCounted): round-based initiative sorting, each unit acts once per round
+- **AbilityAI** (RefCounted): deterministic priority-based AI picks abilities per class
+- **AbilityResolver** (RefCounted): executes abilities, resolves damage/heal/buff
+- **StatCalculator** (RefCounted): centralized formulas from the design doc
+- **BattleUnit** (RefCounted): runtime wrapper holding live HP, cooldowns, effects
 - **EventBus** (autoload): decoupled signal-based communication
 - **GameState** (autoload): current battle references
+
+### Data Model
+- **Resources** (templates): AbilityData, RaceData, ClassData, EquipmentData, UnitData, MonsterData, EncounterData
+- **Runtime** (live state): BattleUnit wraps a resource with mutable battle state
+- Hero stats = class base + level growth + race mods + equipment bonuses → derived formulas
+- Monster stats are flat (no composition)
+
+### Combat Flow
+1. BattleManager creates BattleUnits from UnitData/MonsterData, assigns formation
+2. Each round: sort by initiative, each unit acts once
+3. AI picks ability from priority tree (highest priority first, check condition + cooldown)
+4. Damage pipeline: dodge check → raw damage → crit check → defense reduction → min 1
+5. Battle ends when one side is eliminated
 
 ## Project Structure
 
 ```
 res://
 ├── scenes/           # .tscn files (generated via headless scripts)
-│   ├── main.tscn
-│   ├── battle/
-│   └── ui/
-├── scripts/          # .gd files (Claude Code writes these directly)
-│   ├── battle/
-│   │   └── states/
-│   ├── grid/
-│   ├── units/
-│   ├── actions/
-│   └── ai/
-├── data/             # .tres resource files
-│   ├── units/
-│   ├── skills/
-│   └── terrain/
+│   └── main.tscn
+├── scripts/          # .gd files
+│   ├── battle/       # BattleManager, BattleUnit, TurnQueue, AbilityAI, AbilityResolver, StatCalculator
+│   ├── ui/           # BattleUI, UnitSlotUI
+│   └── ai/           # LLMClient (z.ai)
 ├── resources/        # Resource class definitions (.gd)
-├── assets/           # Art, tiles, sprites
-├── autoload/         # Singleton scripts
+│   ├── ability_data.gd
+│   ├── race_data.gd
+│   ├── class_data.gd
+│   ├── equipment_data.gd
+│   ├── unit_data.gd
+│   ├── monster_data.gd
+│   └── encounter_data.gd
+├── data/             # .tres resource instances
+│   ├── abilities/    # Per-class ability definitions
+│   ├── races/        # Human, Orc, Elf, Dwarf
+│   ├── classes/      # Warrior, Mage, Rogue, Cleric
+│   ├── equipment/    # Weapons, armor, hats, boots
+│   ├── monsters/     # Cave biome: tier1, tier2, boss
+│   ├── encounters/   # Preset encounter groups
+│   └── heroes/       # Test hero configurations
+├── assets/           # Art, sprites, sprite_prompts.md
+├── autoload/         # EventBus, GameState
 ├── addons/           # GDAI MCP
-└── tools/            # Headless setup scripts
+└── tools/            # setup_scenes.gd, setup_data.gd
 ```
 
 ## GDScript Conventions
@@ -59,7 +80,7 @@ res://
 - **Signals**: use `&"StringName"` syntax for signal/state references
 - **@export**: for inspector-editable properties
 - **@onready**: for node references resolved at _ready time
-- **RefCounted** over Node for pure logic classes (TurnQueue, Pathfinder, ActionManager, BattleAction types)
+- **RefCounted** over Node for pure logic classes (TurnQueue, AbilityAI, AbilityResolver, StatCalculator, BattleUnit)
 
 ## .tscn File Editing Rules
 
@@ -72,25 +93,16 @@ res://
 
 **Claude Code can freely write/edit**: `.gd` scripts, `project.godot`, `.cfg` files, `.tres` resources (simple ones), Python files
 
-## Isometric Grid Reference
+## Stat Formulas (from design doc)
 
-- Tile size: 64x32 (2:1 diamond ratio)
-- Grid size: 8x8 (configurable via @export)
-- Height stored in `Dictionary` mapping `Vector2i → int` (0-4 levels)
-- Height Y-offset: `pos.y -= height * tile_half_height`
-
-Coordinate conversion (manual, not TileMapLayer):
-```gdscript
-func grid_to_world(cell: Vector2i) -> Vector2:
-    var x = (cell.x - cell.y) * tile_half_width
-    var y = (cell.x + cell.y) * tile_half_height
-    return Vector2(x, y)
-
-func world_to_grid(world_pos: Vector2) -> Vector2i:
-    var col = (world_pos.x / tile_half_width + world_pos.y / tile_half_height) / 2.0
-    var row = (world_pos.y / tile_half_height - world_pos.x / tile_half_width) / 2.0
-    return Vector2i(floori(col), floori(row))
-```
+- Max HP = `50 + (VIT × 8) + armor_hp_bonus`
+- Melee Damage = `STR × 2 + weapon_bonus`
+- Magic Damage = `INT × 2 + weapon_bonus`
+- Defense = `VIT + armor_defense_bonus` (reduces by `min(80%, defense × 2%)`)
+- Initiative = `AGI × 3 + boots_bonus`
+- Dodge Chance = `min(40%, AGI × 2%)`
+- Crit Chance = `min(30%, LUCK × 3%)`
+- Crit Multiplier = `min(3×, 2× + LUCK × 0.1)`
 
 ## z.ai GLM API
 
@@ -110,7 +122,10 @@ godot --path /home/agus/workspace/asermax/munchkin-dungeon
 # Headless validation
 godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --quit
 
-# Run headless scene setup
+# Generate data files (.tres)
+godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --script res://tools/setup_data.gd
+
+# Generate scene files (.tscn)
 godot --headless --path /home/agus/workspace/asermax/munchkin-dungeon --script res://tools/setup_scenes.gd
 
 # Web export (after templates installed)

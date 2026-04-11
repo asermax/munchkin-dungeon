@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/iron_boar.tres" id="1_y775u"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/pork_wraith.tres" id="2_xffxp"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_fkria"]
+
+[resource]
+script = ExtResource("3_fkria")
+id = "cave_hard_2"
+display_name = "Iron Brigade"
+difficulty = "hard"
+monsters = Array[Resource]([ExtResource("1_y775u"), ExtResource("1_y775u"), ExtResource("2_xffxp")])
+formation = Array[String](["front", "front", "back"])

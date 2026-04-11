@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/truffle_zombie.tres" id="1_xa0sr"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/ghost_piglet.tres" id="2_x7uw0"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_5ul3n"]
+
+[resource]
+script = ExtResource("3_5ul3n")
+id = "cave_medium_4"
+display_name = "Undead Hog Pit"
+difficulty = "medium"
+monsters = Array[Resource]([ExtResource("1_xa0sr"), ExtResource("1_xa0sr"), ExtResource("2_x7uw0")])
+formation = Array[String](["front", "front", "back"])

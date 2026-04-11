@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_0r8yn"]
+
+[resource]
+script = ExtResource("1_0r8yn")
+id = "lava_spit"
+display_name = "Lava Spit"
+description = "Spits molten lava at a single target."
+cooldown = 2
+reach = "ranged"
+power = 1.5
+secondary_effect = "bleed"
+secondary_chance = 0.8
+secondary_duration = 3
+secondary_value = 6
+ai_priority = 35

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/warrior/taunt.tres" id="1_c8cs8"]
+[ext_resource type="Resource" path="res://data/abilities/warrior/shield_wall.tres" id="2_1011w"]
+[ext_resource type="Resource" path="res://data/abilities/warrior/revenge.tres" id="3_q3ml5"]
+[ext_resource type="Resource" path="res://data/abilities/warrior/charge.tres" id="4_nd2va"]
+[ext_resource type="Resource" path="res://data/abilities/warrior/cleave.tres" id="5_c63jo"]
+[ext_resource type="Resource" path="res://data/abilities/warrior/power_strike.tres" id="6_clxre"]
+[ext_resource type="Resource" path="res://data/abilities/basic_attack.tres" id="7_oip5p"]
+[ext_resource type="Script" path="res://resources/class_data.gd" id="8_w1bym"]
+
+[resource]
+script = ExtResource("8_w1bym")
+id = "warrior"
+display_name = "Warrior"
+base_str = 7
+base_agi = 4
+base_vit = 6
+base_int = 2
+base_luck = 4
+str_per_level = 1.5
+vit_per_level = 1.0
+int_per_level = 0.0
+abilities = Array[Resource]([ExtResource("1_c8cs8"), ExtResource("2_1011w"), ExtResource("3_q3ml5"), ExtResource("4_nd2va"), ExtResource("5_c63jo"), ExtResource("6_clxre"), ExtResource("7_oip5p")])
+color = Color(0.3, 0.5, 0.9, 1)
+sprite_path = "res://assets/sprites/warrior.png"

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Resource" path="res://data/equipment/weapons/holy_mace.tres" id="1_r8g8g"]
+[ext_resource type="Resource" path="res://data/equipment/armor/chain_vestments.tres" id="2_wmkim"]
+[ext_resource type="Resource" path="res://data/races/dwarf.tres" id="3_mxkbi"]
+[ext_resource type="Script" path="res://resources/unit_data.gd" id="4_qsh63"]
+[ext_resource type="Resource" path="res://data/classes/cleric.tres" id="5_tour4"]
+
+[resource]
+script = ExtResource("4_qsh63")
+id = "hero_cleric"
+display_name = "Thorin Lightbeard"
+race = ExtResource("3_mxkbi")
+unit_class = ExtResource("5_tour4")
+level = 3
+equipment = Array[Resource]([ExtResource("1_r8g8g"), ExtResource("2_wmkim")])

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_vehw7"]
+
+[resource]
+script = ExtResource("1_vehw7")
+id = "plate_armor"
+display_name = "Plate Armor"
+slot = "armor"
+required_class = "warrior"
+bonus_defense = 4
+bonus_hp = 10

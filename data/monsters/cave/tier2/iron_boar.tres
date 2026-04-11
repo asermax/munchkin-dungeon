@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/iron_hide.tres" id="1_i8irg"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_wla5p"]
+
+[resource]
+script = ExtResource("2_wla5p")
+id = "iron_boar"
+display_name = "Iron Hedgehog"
+tier = 2
+max_hp = 110
+damage = 24
+defense = 12
+initiative = 19
+abilities = Array[Resource]([ExtResource("1_i8irg")])
+xp_reward = 20
+color = Color(0.5, 0.5, 0.55, 1)
+sprite_path = "res://assets/sprites/iron_hedgehog.png"

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_uevpk"]
+
+[resource]
+script = ExtResource("1_uevpk")
+id = "evasion"
+display_name = "Evasion"
+description = "Greatly boosts dodge for 2 rounds."
+cooldown = 3
+target_type = "self"
+effect_type = "buff"
+secondary_effect = "dodge_up"
+secondary_chance = 1.0
+secondary_duration = 2
+secondary_value = 20
+ai_priority = 60
+ai_condition = "self_below_30"

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/shield_bash.tres" id="1_gmrxh"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_hdo64"]
+
+[resource]
+script = ExtResource("2_hdo64")
+id = "war_boar"
+display_name = "War Hedgehog"
+tier = 2
+max_hp = 120
+damage = 22
+defense = 10
+initiative = 18
+abilities = Array[Resource]([ExtResource("1_gmrxh")])
+xp_reward = 20
+color = Color(0.6, 0.2, 0.2, 1)
+sprite_path = "res://assets/sprites/war_hedgehog.png"

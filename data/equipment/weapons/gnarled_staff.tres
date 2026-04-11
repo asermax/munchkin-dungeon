@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_f6xmt"]
+
+[resource]
+script = ExtResource("1_f6xmt")
+id = "gnarled_staff"
+display_name = "Gnarled Staff"
+required_class = "mage"
+bonus_int = 2
+bonus_damage = 3

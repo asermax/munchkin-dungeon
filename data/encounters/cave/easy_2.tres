@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/mud_hog.tres" id="1_lrtds"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="2_stast"]
+
+[resource]
+script = ExtResource("2_stast")
+id = "cave_easy_2"
+display_name = "Lone Mud Hog"
+monsters = Array[Resource]([ExtResource("1_lrtds")])
+formation = Array[String](["front"])

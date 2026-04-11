@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_hm38e"]
+
+[resource]
+script = ExtResource("1_hm38e")
+id = "taunt"
+display_name = "Taunt"
+description = "Forces enemies to target the warrior."
+cooldown = 3
+target_type = "self"
+effect_type = "taunt"
+power = 0.0
+secondary_effect = "taunt"
+secondary_duration = 2
+ai_priority = 60
+ai_condition = "ally_below_40"

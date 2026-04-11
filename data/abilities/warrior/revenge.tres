@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_wjnix"]
+
+[resource]
+script = ExtResource("1_wjnix")
+id = "revenge"
+display_name = "Revenge"
+description = "Powerful counter-strike dealing 1.8x damage."
+cooldown = 2
+power = 1.8
+ai_priority = 40
+ai_condition = "self_below_50"

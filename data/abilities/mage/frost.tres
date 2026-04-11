@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sodex"]
+
+[resource]
+script = ExtResource("1_sodex")
+id = "frost"
+display_name = "Frost"
+description = "Deals damage and may stun an enemy."
+cooldown = 2
+reach = "ranged"
+damage_stat = "int"
+power = 1.2
+secondary_effect = "stun"
+secondary_chance = 0.4
+secondary_duration = 1
+ai_priority = 50

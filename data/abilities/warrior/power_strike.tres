@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_bj4f1"]
+
+[resource]
+script = ExtResource("1_bj4f1")
+id = "power_strike"
+display_name = "Power Strike"
+description = "A focused blow dealing 1.3x damage."
+cooldown = 1
+power = 1.3
+ai_priority = 10

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/gore.tres" id="1_xfiam"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_ogay4"]
+
+[resource]
+script = ExtResource("2_ogay4")
+id = "dire_tusker"
+display_name = "Dire Quillbeast"
+tier = 2
+max_hp = 105
+damage = 28
+defense = 8
+initiative = 23
+crit_chance = 0.12
+abilities = Array[Resource]([ExtResource("1_xfiam")])
+xp_reward = 22
+color = Color(0.45, 0.3, 0.2, 1)
+sprite_path = "res://assets/sprites/dire_quillbeast.png"

@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/unit_slot_ui.gd" id="script_100"]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/bones_pile.png" id="1_1ei5t"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1lbe2"]
+
+[node name="UnitSlot" type="PanelContainer" unique_id=1788269265]
+script = ExtResource("script_100")
+custom_minimum_size = Vector2(210, 0)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1437297632]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="SpriteContainer" type="Control" parent="VBox" unique_id=716315093]
+custom_minimum_size = Vector2(210, 270)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Sprite" type="TextureRect" parent="VBox/SpriteContainer" unique_id=1874017026]
+unique_name_in_owner = true
+texture_filter = 3
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DeadSprite" type="TextureRect" parent="VBox/SpriteContainer" unique_id=1982220891]
+unique_name_in_owner = true
+visible = false
+texture_filter = 3
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -180.0
+offset_right = 110.0
+texture = ExtResource("1_1ei5t")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HpMargin" type="MarginContainer" parent="VBox" unique_id=1534146213]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 0
+
+[node name="HpContainer" type="Control" parent="VBox/HpMargin" unique_id=797565115]
+custom_minimum_size = Vector2(194, 18)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HpBar" type="ProgressBar" parent="VBox/HpMargin/HpContainer" unique_id=81814040]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+show_percentage = false
+
+[node name="HpLabel" type="Label" parent="VBox/HpMargin/HpContainer" unique_id=1881603636]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+horizontal_alignment = 1
+vertical_alignment = 1

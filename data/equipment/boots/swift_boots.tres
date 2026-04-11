@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_lj41r"]
+
+[resource]
+script = ExtResource("1_lj41r")
+id = "swift_boots"
+display_name = "Swift Boots"
+slot = "boots"
+bonus_agi = 1
+bonus_initiative = 4

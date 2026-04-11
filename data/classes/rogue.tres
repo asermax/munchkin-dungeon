@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/rogue/evasion.tres" id="1_umsnw"]
+[ext_resource type="Resource" path="res://data/abilities/rogue/smoke_bomb.tres" id="2_npi5h"]
+[ext_resource type="Resource" path="res://data/abilities/rogue/execute.tres" id="3_yqwkw"]
+[ext_resource type="Resource" path="res://data/abilities/rogue/backstab.tres" id="4_k3tcr"]
+[ext_resource type="Resource" path="res://data/abilities/rogue/poison_blade.tres" id="5_5ea5m"]
+[ext_resource type="Resource" path="res://data/abilities/rogue/twin_strike.tres" id="6_deoox"]
+[ext_resource type="Resource" path="res://data/abilities/basic_attack.tres" id="7_v7efc"]
+[ext_resource type="Script" path="res://resources/class_data.gd" id="8_ypi2k"]
+
+[resource]
+script = ExtResource("8_ypi2k")
+id = "rogue"
+display_name = "Rogue"
+base_str = 4
+base_agi = 8
+base_vit = 3
+base_int = 2
+base_luck = 6
+agi_per_level = 1.5
+int_per_level = 0.0
+luck_per_level = 1.0
+abilities = Array[Resource]([ExtResource("1_umsnw"), ExtResource("2_npi5h"), ExtResource("3_yqwkw"), ExtResource("4_k3tcr"), ExtResource("5_5ea5m"), ExtResource("6_deoox"), ExtResource("7_v7efc")])
+color = Color(0.3, 0.7, 0.3, 1)
+sprite_path = "res://assets/sprites/rogue.png"

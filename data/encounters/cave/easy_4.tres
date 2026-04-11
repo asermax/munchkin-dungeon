@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/oink_slime.tres" id="1_3husy"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="2_umutn"]
+
+[resource]
+script = ExtResource("2_umutn")
+id = "cave_easy_4"
+display_name = "Slime Pit"
+monsters = Array[Resource]([ExtResource("1_3husy"), ExtResource("1_3husy")])
+formation = Array[String](["front", "front"])

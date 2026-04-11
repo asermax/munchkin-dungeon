@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/heal_ally.tres" id="1_ltx3d"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_jodi7"]
+
+[resource]
+script = ExtResource("2_jodi7")
+id = "swinomancer"
+display_name = "Spinomancer"
+tier = 2
+max_hp = 95
+damage = 18
+defense = 6
+initiative = 22
+abilities = Array[Resource]([ExtResource("1_ltx3d")])
+preferred_row = "back"
+xp_reward = 18
+color = Color(0.55, 0.3, 0.65, 1)
+sprite_path = "res://assets/sprites/spinomancer.png"

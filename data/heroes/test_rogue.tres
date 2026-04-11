@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Resource" path="res://data/equipment/weapons/twin_daggers.tres" id="1_18qji"]
+[ext_resource type="Resource" path="res://data/equipment/armor/leather_armor.tres" id="2_3x6wy"]
+[ext_resource type="Resource" path="res://data/races/human.tres" id="3_js7kp"]
+[ext_resource type="Script" path="res://resources/unit_data.gd" id="4_2t3rf"]
+[ext_resource type="Resource" path="res://data/classes/rogue.tres" id="5_8y20d"]
+
+[resource]
+script = ExtResource("4_2t3rf")
+id = "hero_rogue"
+display_name = "Vex Shadowpocket"
+race = ExtResource("3_js7kp")
+unit_class = ExtResource("5_8y20d")
+level = 3
+equipment = Array[Resource]([ExtResource("1_18qji"), ExtResource("2_3x6wy")])

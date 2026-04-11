@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dungeon_map_ui.gd" id="script_100"]
+
+[node name="DungeonMap" type="Control" unique_id=263397639]
+script = ExtResource("script_100")
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0

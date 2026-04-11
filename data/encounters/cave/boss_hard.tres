@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/boss/hogzilla.tres" id="1_ujd7k"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/war_boar.tres" id="2_8tfxm"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/swinomancer.tres" id="3_hu25n"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="4_8utpa"]
+
+[resource]
+script = ExtResource("4_8utpa")
+id = "cave_boss_hard"
+display_name = "Hogzilla's Court"
+difficulty = "boss"
+monsters = Array[Resource]([ExtResource("1_ujd7k"), ExtResource("2_8tfxm"), ExtResource("3_hu25n")])
+formation = Array[String](["front", "front", "back"])

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/war_boar.tres" id="1_lqimk"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/winged_swine.tres" id="2_vqxv6"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/bristle_spitter.tres" id="3_6vxql"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="4_a3rad"]
+
+[resource]
+script = ExtResource("4_a3rad")
+id = "cave_medium_5"
+display_name = "Flying Ambush"
+difficulty = "medium"
+monsters = Array[Resource]([ExtResource("1_lqimk"), ExtResource("2_vqxv6"), ExtResource("3_6vxql")])
+formation = Array[String](["front", "back", "back"])

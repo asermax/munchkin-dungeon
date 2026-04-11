@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/ghost_piglet.tres" id="1_em15e"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="2_o2q31"]
+
+[resource]
+script = ExtResource("2_o2q31")
+id = "cave_easy_3"
+display_name = "Ghostly Piglets"
+monsters = Array[Resource]([ExtResource("1_em15e"), ExtResource("1_em15e")])
+formation = Array[String](["front", "back"])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Resource" path="res://data/equipment/weapons/iron_sword.tres" id="1_ibwuf"]
+[ext_resource type="Resource" path="res://data/equipment/armor/plate_armor.tres" id="2_niltj"]
+[ext_resource type="Resource" path="res://data/races/human.tres" id="3_hwth2"]
+[ext_resource type="Script" path="res://resources/unit_data.gd" id="4_1uxg5"]
+[ext_resource type="Resource" path="res://data/classes/warrior.tres" id="5_bknip"]
+
+[resource]
+script = ExtResource("4_1uxg5")
+id = "hero_warrior"
+display_name = "Brock the Bold"
+race = ExtResource("3_hwth2")
+unit_class = ExtResource("5_bknip")
+level = 3
+equipment = Array[Resource]([ExtResource("1_ibwuf"), ExtResource("2_niltj")])

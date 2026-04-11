@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_oqug8"]
+
+[resource]
+script = ExtResource("1_oqug8")
+id = "iron_sword"
+display_name = "Iron Sword"
+required_class = "warrior"
+bonus_str = 1
+bonus_damage = 4

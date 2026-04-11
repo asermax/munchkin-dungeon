@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_5wjsr"]
+
+[resource]
+script = ExtResource("1_5wjsr")
+id = "leather_armor"
+display_name = "Leather Armor"
+slot = "armor"
+required_class = "rogue"
+bonus_agi = 1
+bonus_defense = 2
+bonus_hp = 5

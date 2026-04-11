@@ -1,0 +1,222 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/battle/battle_camera.gd" id="script_100"]
+[ext_resource type="Script" path="res://scripts/battle/battle_manager.gd" id="script_101"]
+[ext_resource type="Script" path="res://scripts/ui/battle_ui.gd" id="script_102"]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/cave_dungeon_bg.png" id="1_ffvsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/unit_slot.tscn" id="2_xd4uy"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1lbe2"]
+
+[node name="Battle" type="Node2D" unique_id=615578295]
+
+[node name="BattleCamera" type="Camera2D" parent="." unique_id=557130146]
+script = ExtResource("script_100")
+
+[node name="BattleManager" type="Node" parent="." unique_id=497123365]
+script = ExtResource("script_101")
+
+[node name="BattleUI" type="CanvasLayer" parent="." unique_id=2040722876]
+script = ExtResource("script_102")
+
+[node name="Background" type="TextureRect" parent="BattleUI" unique_id=314388967]
+texture_filter = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("1_ffvsa")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Screen" type="VBoxContainer" parent="BattleUI" unique_id=998236225]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 0
+
+[node name="TopMargin" type="MarginContainer" parent="BattleUI/Screen" unique_id=737978868]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 4
+
+[node name="TopBar" type="HBoxContainer" parent="BattleUI/Screen/TopMargin" unique_id=567914261]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="RoundLabel" type="Label" parent="BattleUI/Screen/TopMargin/TopBar" unique_id=1804567909]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Round 0"
+
+[node name="Spacer" type="Control" parent="BattleUI/Screen/TopMargin/TopBar" unique_id=1227048184]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpeedBox" type="HBoxContainer" parent="BattleUI/Screen/TopMargin/TopBar" unique_id=532125225]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="PauseBtn" type="Button" parent="BattleUI/Screen/TopMargin/TopBar/SpeedBox" unique_id=1471600086]
+layout_mode = 2
+text = "||"
+
+[node name="PlayBtn" type="Button" parent="BattleUI/Screen/TopMargin/TopBar/SpeedBox" unique_id=692081676]
+layout_mode = 2
+text = ">"
+
+[node name="FastBtn" type="Button" parent="BattleUI/Screen/TopMargin/TopBar/SpeedBox" unique_id=1763936256]
+layout_mode = 2
+text = ">>"
+
+[node name="FastestBtn" type="Button" parent="BattleUI/Screen/TopMargin/TopBar/SpeedBox" unique_id=1512708582]
+layout_mode = 2
+text = ">>>"
+
+[node name="SpeedLabel" type="Label" parent="BattleUI/Screen/TopMargin/TopBar/SpeedBox" unique_id=1447903029]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "1x"
+
+[node name="LogHeaderMargin" type="MarginContainer" parent="BattleUI/Screen" unique_id=860265582]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+
+[node name="LogToggle" type="Button" parent="BattleUI/Screen/LogHeaderMargin" unique_id=46981508]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "> Log"
+
+[node name="LogMargin" type="MarginContainer" parent="BattleUI/Screen" unique_id=268327486]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+
+[node name="LogPanel" type="PanelContainer" parent="BattleUI/Screen/LogMargin" unique_id=391619781]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogScroll" type="ScrollContainer" parent="BattleUI/Screen/LogMargin/LogPanel" unique_id=85388920]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogTextMargin" type="MarginContainer" parent="BattleUI/Screen/LogMargin/LogPanel/LogScroll" unique_id=1361292819]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="LogText" type="RichTextLabel" parent="BattleUI/Screen/LogMargin/LogPanel/LogScroll/LogTextMargin" unique_id=839824980]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="BottomSpacer" type="Control" parent="BattleUI/Screen" unique_id=727980090]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FormationMargin" type="MarginContainer" parent="BattleUI/Screen" unique_id=1291573387]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 140
+
+[node name="FormationArea" type="HBoxContainer" parent="BattleUI/Screen/FormationMargin" unique_id=245127916]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="HeroRow" type="HBoxContainer" parent="BattleUI/Screen/FormationMargin/FormationArea" unique_id=237774813]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeroSlot0" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/HeroRow" unique_id=1788269265 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="HeroSlot1" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/HeroRow" unique_id=942891406 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="HeroSlot2" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/HeroRow" unique_id=1814462414 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="HeroSlot3" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/HeroRow" unique_id=599340837 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="MidSpacer" type="Control" parent="BattleUI/Screen/FormationMargin/FormationArea" unique_id=1540474384]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[node name="MonsterRow" type="HBoxContainer" parent="BattleUI/Screen/FormationMargin/FormationArea" unique_id=1803853340]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="MonsterSlot0" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/MonsterRow" unique_id=778839865 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="MonsterSlot1" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/MonsterRow" unique_id=82426361 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="MonsterSlot2" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/MonsterRow" unique_id=927725333 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="MonsterSlot3" type="PanelContainer" parent="BattleUI/Screen/FormationMargin/FormationArea/MonsterRow" unique_id=1059285609 instance=ExtResource("2_xd4uy")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1lbe2")
+
+[node name="ResultOverlay" type="ColorRect" parent="BattleUI" unique_id=1832370740]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+color = Color(0, 0, 0, 0.7)
+
+[node name="ResultLabel" type="Label" parent="BattleUI/ResultOverlay" unique_id=1855834916]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1

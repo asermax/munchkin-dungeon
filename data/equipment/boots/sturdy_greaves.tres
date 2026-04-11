@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_03u7w"]
+
+[resource]
+script = ExtResource("1_03u7w")
+id = "sturdy_greaves"
+display_name = "Sturdy Greaves"
+slot = "boots"
+rarity = "uncommon"
+bonus_vit = 1
+bonus_defense = 1
+bonus_initiative = 2

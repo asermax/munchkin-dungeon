@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_o1fxs"]
+
+[resource]
+script = ExtResource("1_o1fxs")
+id = "earthquake"
+display_name = "Earthquake"
+description = "Shakes the ground, hitting all enemies."
+cooldown = 3
+target_type = "all_enemies"
+reach = "ranged"
+power = 0.8
+ai_priority = 30
+ai_condition = "enemies_gte_3"

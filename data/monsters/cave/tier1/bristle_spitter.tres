@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="1_osucb"]
+
+[resource]
+script = ExtResource("1_osucb")
+id = "bristle_spitter"
+display_name = "Quill Spitter"
+max_hp = 48
+damage = 14
+initiative = 15
+dodge_chance = 0.03
+preferred_row = "back"
+color = Color(0.7, 0.6, 0.4, 1)
+sprite_path = "res://assets/sprites/quill_spitter.png"

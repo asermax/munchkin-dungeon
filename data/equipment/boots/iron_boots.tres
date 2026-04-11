@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_8kimb"]
+
+[resource]
+script = ExtResource("1_8kimb")
+id = "iron_boots"
+display_name = "Iron Boots"
+slot = "boots"
+bonus_defense = 1
+bonus_initiative = 2

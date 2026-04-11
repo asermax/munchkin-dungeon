@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="1_e1fow"]
+
+[resource]
+script = ExtResource("1_e1fow")
+id = "tuskling"
+display_name = "Spikeling"
+max_hp = 48
+damage = 13
+defense = 4
+initiative = 16
+color = Color(0.5, 0.35, 0.25, 1)
+sprite_path = "res://assets/sprites/spikeling.png"

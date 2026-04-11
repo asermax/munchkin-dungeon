@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RaceData" format=3]
+
+[ext_resource type="Script" path="res://resources/race_data.gd" id="1_05k1s"]
+
+[resource]
+script = ExtResource("1_05k1s")
+id = "elf"
+display_name = "Elf"
+agi_mod = 3
+vit_mod = -2
+int_mod = 3
+luck_mod = -1
+restricted_classes = Array[String](["warrior"])
+trait_id = "foresight"
+trait_description = "+10% dodge chance."

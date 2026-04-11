@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/hog_troll.tres" id="1_qvfuh"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/swinomancer.tres" id="2_1e41u"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_ow8up"]
+
+[resource]
+script = ExtResource("3_ow8up")
+id = "cave_hard_3"
+display_name = "Troll's Kitchen"
+difficulty = "hard"
+monsters = Array[Resource]([ExtResource("1_qvfuh"), ExtResource("2_1e41u")])
+formation = Array[String](["front", "back"])

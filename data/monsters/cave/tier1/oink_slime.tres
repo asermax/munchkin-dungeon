@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="1_ub8i8"]
+
+[resource]
+script = ExtResource("1_ub8i8")
+id = "oink_slime"
+display_name = "Quill Slime"
+max_hp = 55
+damage = 12
+defense = 4
+initiative = 13
+color = Color(0.3, 0.7, 0.3, 1)
+sprite_path = "res://assets/sprites/quill_slime.png"

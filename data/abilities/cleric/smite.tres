@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_vrmnq"]
+
+[resource]
+script = ExtResource("1_vrmnq")
+id = "smite"
+display_name = "Smite"
+description = "Holy damage against a single enemy."
+cooldown = 1
+reach = "ranged"
+damage_stat = "int"
+power = 1.3
+ai_priority = 10

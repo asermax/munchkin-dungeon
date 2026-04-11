@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/earthquake.tres" id="1_qle3s"]
+[ext_resource type="Resource" path="res://data/abilities/monster/flame_snort.tres" id="2_p22ya"]
+[ext_resource type="Resource" path="res://data/abilities/monster/lava_spit.tres" id="3_jh2as"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="4_vcniw"]
+
+[resource]
+script = ExtResource("4_vcniw")
+id = "hogzilla"
+display_name = "Hogzilla, the Eternal Quill"
+tier = 3
+max_hp = 250
+damage = 26
+defense = 12
+initiative = 20
+dodge_chance = 0.05
+crit_chance = 0.12
+crit_multiplier = 2.2
+abilities = Array[Resource]([ExtResource("1_qle3s"), ExtResource("2_p22ya")])
+is_boss = true
+phase2_abilities = Array[Resource]([ExtResource("3_jh2as")])
+phase2_stat_multiplier = 1.3
+xp_reward = 80
+color = Color(0.8, 0.3, 0.1, 1)
+sprite_path = "res://assets/sprites/hogzilla.png"

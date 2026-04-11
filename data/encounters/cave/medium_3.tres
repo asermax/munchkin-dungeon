@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/swinomancer.tres" id="1_i30xq"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/oink_slime.tres" id="2_al8oh"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_ah5l8"]
+
+[resource]
+script = ExtResource("3_ah5l8")
+id = "cave_medium_3"
+display_name = "The Swinomancer's Flock"
+difficulty = "medium"
+monsters = Array[Resource]([ExtResource("1_i30xq"), ExtResource("2_al8oh"), ExtResource("2_al8oh")])
+formation = Array[String](["back", "front", "front"])

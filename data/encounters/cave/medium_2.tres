@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/dire_tusker.tres" id="1_vvftk"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier1/hoglet.tres" id="2_sxrjh"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_r7gcn"]
+
+[resource]
+script = ExtResource("3_r7gcn")
+id = "cave_medium_2"
+display_name = "Tusker's Guard"
+difficulty = "medium"
+monsters = Array[Resource]([ExtResource("1_vvftk"), ExtResource("2_sxrjh"), ExtResource("2_sxrjh")])
+formation = Array[String](["front", "back", "back"])

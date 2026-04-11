@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sgdfq"]
+
+[resource]
+script = ExtResource("1_sgdfq")
+id = "resurrect"
+display_name = "Resurrect"
+description = "Revives a fallen ally at 10% HP. Once per battle."
+cooldown = 99
+target_type = "ally"
+reach = "ranged"
+effect_type = "resurrect"
+ai_priority = 70
+ai_condition = "ally_dead"

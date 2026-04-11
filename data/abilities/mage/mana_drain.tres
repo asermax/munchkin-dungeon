@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_p186o"]
+
+[resource]
+script = ExtResource("1_p186o")
+id = "mana_drain"
+display_name = "Mana Drain"
+description = "Drains life from an enemy."
+cooldown = 2
+reach = "ranged"
+damage_stat = "int"
+secondary_effect = "life_drain"
+secondary_chance = 1.0
+secondary_value = 8
+ai_priority = 25
+ai_condition = "self_below_50"

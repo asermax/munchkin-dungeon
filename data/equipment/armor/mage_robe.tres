@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EquipmentData" format=3]
+
+[ext_resource type="Script" path="res://resources/equipment_data.gd" id="1_8of7o"]
+
+[resource]
+script = ExtResource("1_8of7o")
+id = "mage_robe"
+display_name = "Mage Robe"
+slot = "armor"
+required_class = "mage"
+bonus_int = 2
+bonus_defense = 1
+bonus_hp = 5

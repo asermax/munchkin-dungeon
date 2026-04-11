@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="1_xx0hp"]
+
+[resource]
+script = ExtResource("1_xx0hp")
+id = "mud_hog"
+display_name = "Mudgehog"
+max_hp = 65
+damage = 13
+defense = 5
+initiative = 12
+dodge_chance = 0.03
+xp_reward = 12
+color = Color(0.5, 0.35, 0.2, 1)
+sprite_path = "res://assets/sprites/mudgehog.png"

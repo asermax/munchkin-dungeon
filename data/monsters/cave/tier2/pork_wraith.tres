@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/life_drain.tres" id="1_0muxa"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_orhho"]
+
+[resource]
+script = ExtResource("2_orhho")
+id = "pork_wraith"
+display_name = "Quill Wraith"
+tier = 2
+max_hp = 90
+damage = 24
+defense = 5
+initiative = 24
+dodge_chance = 0.15
+crit_chance = 0.1
+abilities = Array[Resource]([ExtResource("1_0muxa")])
+preferred_row = "back"
+xp_reward = 20
+color = Color(0.4, 0.2, 0.5, 1)
+sprite_path = "res://assets/sprites/quill_wraith.png"

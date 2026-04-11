@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_t38mq"]
+
+[resource]
+script = ExtResource("1_t38mq")
+id = "life_drain"
+display_name = "Life Drain"
+description = "Drains life from an enemy."
+cooldown = 2
+reach = "ranged"
+power = 1.2
+secondary_effect = "life_drain"
+secondary_chance = 1.0
+secondary_value = 10
+ai_priority = 25

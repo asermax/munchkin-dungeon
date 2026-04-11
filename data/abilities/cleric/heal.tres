@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_lcc2k"]
+
+[resource]
+script = ExtResource("1_lcc2k")
+id = "heal"
+display_name = "Heal"
+description = "Restores a significant amount of HP to an ally."
+cooldown = 2
+target_type = "ally"
+reach = "ranged"
+effect_type = "heal"
+heal_amount = 30
+ai_priority = 60
+ai_condition = "ally_below_40"

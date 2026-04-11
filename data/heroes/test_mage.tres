@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Resource" path="res://data/equipment/weapons/gnarled_staff.tres" id="1_gtej1"]
+[ext_resource type="Resource" path="res://data/equipment/armor/mage_robe.tres" id="2_a1bbh"]
+[ext_resource type="Resource" path="res://data/races/elf.tres" id="3_ymhje"]
+[ext_resource type="Script" path="res://resources/unit_data.gd" id="4_nxqgm"]
+[ext_resource type="Resource" path="res://data/classes/mage.tres" id="5_868q0"]
+
+[resource]
+script = ExtResource("4_nxqgm")
+id = "hero_mage"
+display_name = "Elara the Unhinged"
+race = ExtResource("3_ymhje")
+unit_class = ExtResource("5_868q0")
+level = 3
+equipment = Array[Resource]([ExtResource("1_gtej1"), ExtResource("2_a1bbh")])

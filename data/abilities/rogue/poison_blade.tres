@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_4gq6x"]
+
+[resource]
+script = ExtResource("1_4gq6x")
+id = "poison_blade"
+display_name = "Poison Blade"
+description = "Poisons the target for damage over time."
+cooldown = 2
+secondary_effect = "poison"
+secondary_chance = 0.8
+secondary_duration = 3
+secondary_value = 5
+ai_priority = 20

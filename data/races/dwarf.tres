@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RaceData" format=3]
+
+[ext_resource type="Script" path="res://resources/race_data.gd" id="1_6uylo"]
+
+[resource]
+script = ExtResource("1_6uylo")
+id = "dwarf"
+display_name = "Dwarf"
+str_mod = 1
+agi_mod = -2
+vit_mod = 3
+luck_mod = 1
+restricted_classes = Array[String](["rogue"])
+trait_id = "sturdy"
+trait_description = "+3 flat defense."

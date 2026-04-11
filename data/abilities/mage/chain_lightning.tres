@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_in42c"]
+
+[resource]
+script = ExtResource("1_in42c")
+id = "chain_lightning"
+display_name = "Chain Lightning"
+description = "Shocks all enemies with lightning."
+cooldown = 3
+target_type = "all_enemies"
+reach = "ranged"
+damage_stat = "int"
+power = 0.7
+ai_priority = 60
+ai_condition = "enemies_gte_3"

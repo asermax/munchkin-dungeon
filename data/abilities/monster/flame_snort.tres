@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_tmgqt"]
+
+[resource]
+script = ExtResource("1_tmgqt")
+id = "flame_snort"
+display_name = "Flame Snort"
+description = "Blasts flames at the front row."
+cooldown = 2
+target_type = "all_enemies"
+power = 1.3
+secondary_effect = "bleed"
+secondary_chance = 0.5
+secondary_duration = 2
+secondary_value = 5
+ai_priority = 25

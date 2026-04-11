@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_scv1g"]
+
+[resource]
+script = ExtResource("1_scv1g")
+id = "smoke_bomb"
+display_name = "Smoke Bomb"
+description = "Reduces all enemies' accuracy."
+cooldown = 3
+target_type = "all_enemies"
+reach = "ranged"
+effect_type = "debuff"
+secondary_effect = "accuracy_down"
+secondary_chance = 1.0
+secondary_duration = 2
+secondary_value = 15
+ai_priority = 50
+ai_condition = "enemies_gte_3"

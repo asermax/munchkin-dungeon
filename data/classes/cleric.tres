@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/cleric/resurrect.tres" id="1_hwoij"]
+[ext_resource type="Resource" path="res://data/abilities/cleric/heal.tres" id="2_i3dw4"]
+[ext_resource type="Resource" path="res://data/abilities/cleric/purify.tres" id="3_ismnt"]
+[ext_resource type="Resource" path="res://data/abilities/cleric/holy_shield.tres" id="4_ieupu"]
+[ext_resource type="Resource" path="res://data/abilities/cleric/bless.tres" id="5_eeqf8"]
+[ext_resource type="Resource" path="res://data/abilities/cleric/smite.tres" id="6_6lvtq"]
+[ext_resource type="Resource" path="res://data/abilities/basic_attack.tres" id="7_qkyia"]
+[ext_resource type="Script" path="res://resources/class_data.gd" id="8_gqg7p"]
+
+[resource]
+script = ExtResource("8_gqg7p")
+id = "cleric"
+display_name = "Cleric"
+base_str = 3
+base_agi = 3
+base_vit = 7
+base_luck = 4
+vit_per_level = 1.0
+int_per_level = 1.0
+abilities = Array[Resource]([ExtResource("1_hwoij"), ExtResource("2_i3dw4"), ExtResource("3_ismnt"), ExtResource("4_ieupu"), ExtResource("5_eeqf8"), ExtResource("6_6lvtq"), ExtResource("7_qkyia")])
+preferred_row = "back"
+color = Color(0.9, 0.8, 0.2, 1)
+sprite_path = "res://assets/sprites/cleric.png"

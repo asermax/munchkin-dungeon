@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/dire_tusker.tres" id="1_2b7aa"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/war_boar.tres" id="2_li53t"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="3_4dyq2"]
+
+[resource]
+script = ExtResource("3_4dyq2")
+id = "cave_hard_4"
+display_name = "Dire Pack"
+difficulty = "hard"
+monsters = Array[Resource]([ExtResource("1_2b7aa"), ExtResource("2_li53t"), ExtResource("2_li53t")])
+formation = Array[String](["front", "front", "front"])

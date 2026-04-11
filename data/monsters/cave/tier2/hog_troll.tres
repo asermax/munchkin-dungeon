@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/monster/smash.tres" id="1_lmkge"]
+[ext_resource type="Script" path="res://resources/monster_data.gd" id="2_ynfwp"]
+
+[resource]
+script = ExtResource("2_ynfwp")
+id = "hog_troll"
+display_name = "Quill Troll"
+tier = 2
+max_hp = 115
+damage = 26
+defense = 9
+initiative = 17
+crit_chance = 0.1
+abilities = Array[Resource]([ExtResource("1_lmkge")])
+xp_reward = 22
+color = Color(0.4, 0.5, 0.35, 1)
+sprite_path = "res://assets/sprites/quill_troll.png"

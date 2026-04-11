@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/dire_tusker.tres" id="1_gbprd"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/swinomancer.tres" id="2_l5c2b"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/pork_wraith.tres" id="3_u4qe3"]
+[ext_resource type="Resource" path="res://data/monsters/cave/tier2/iron_boar.tres" id="4_6niay"]
+[ext_resource type="Script" path="res://resources/encounter_data.gd" id="5_vxmmq"]
+
+[resource]
+script = ExtResource("5_vxmmq")
+id = "cave_hard_1"
+display_name = "The Quill Gauntlet"
+difficulty = "hard"
+monsters = Array[Resource]([ExtResource("1_gbprd"), ExtResource("2_l5c2b"), ExtResource("3_u4qe3"), ExtResource("4_6niay")])
+formation = Array[String](["front", "back", "back", "front"])

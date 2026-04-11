@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_hbfr6"]
+
+[resource]
+script = ExtResource("1_hbfr6")
+id = "shield_wall"
+display_name = "Shield Wall"
+description = "Raises defense significantly for 2 rounds."
+cooldown = 3
+target_type = "self"
+effect_type = "buff"
+secondary_effect = "defense_up"
+secondary_chance = 1.0
+secondary_duration = 2
+secondary_value = 5
+ai_priority = 50
+ai_condition = "self_below_50"

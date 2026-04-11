@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_a6hx2"]
+
+[resource]
+script = ExtResource("1_a6hx2")
+id = "execute"
+display_name = "Execute"
+description = "Finishes off a weakened enemy for 2.0x damage."
+cooldown = 2
+power = 2.0
+ai_priority = 45
+ai_condition = "enemy_below_20"
