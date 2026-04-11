@@ -28,8 +28,10 @@ func load_biome(biome: String) -> void:
 	var file_name := dir.get_next()
 
 	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var full_path := "%s/%s" % [dir_path, file_name]
+		if file_name.ends_with(".tres") or file_name.ends_with(".tres.remap"):
+			# In exported builds, resources are stored as .tres.remap
+			var clean_name := file_name.replace(".remap", "")
+			var full_path := "%s/%s" % [dir_path, clean_name]
 			var encounter: EncounterData = load(full_path)
 
 			if encounter != null and encounter.difficulty in _pools:

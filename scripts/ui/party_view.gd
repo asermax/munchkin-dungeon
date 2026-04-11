@@ -6,10 +6,12 @@ extends Control
 
 var _hero_slots: Array = []  # UnitSlotUI instances
 var _heroes: Array = []      # UnitData resources
+var _hero_state: Dictionary = {}  # hero_id -> {current_hp, max_hp, is_alive}
 
 
-func setup(heroes: Array) -> void:
+func setup(heroes: Array, hero_state: Dictionary = {}) -> void:
 	_heroes = heroes
+	_hero_state = hero_state
 	_build_ui()
 
 
@@ -66,13 +68,25 @@ func _build_ui() -> void:
 	var slot_scene: PackedScene = load("res://scenes/ui/unit_slot.tscn")
 	_hero_slots.clear()
 
-	for hero_data: Resource in _heroes:
+	# Sort heroes by formation order (same as battle display)
+	var sorted_heroes := _sort_by_formation(_heroes)
+
+	for hero_data: Resource in sorted_heroes:
 		var slot: Control = slot_scene.instantiate()
 		hero_row.add_child(slot)
 		_hero_slots.append(slot)
 
 		var info := _hero_display_info(hero_data)
 		slot.setup(info)
+
+		# Apply persisted HP and death state
+		var state: Dictionary = _hero_state.get(hero_data.id, {})
+
+		if not state.is_empty():
+			slot.update_hp(state.current_hp, state.max_hp)
+
+			if not state.is_alive:
+				slot.mark_dead()
 
 	# Fill the rest of the row to match battle layout (mid spacer + monster row width)
 	# This keeps heroes in the same left-side position as during battle
@@ -101,3 +115,54 @@ func _hero_display_info(hero_data: Resource) -> Dictionary:
 		"current_hp": stats.max_hp,
 		"sprite_path": unit_class.get("sprite_path"),
 	}
+
+
+func _sort_by_formation(heroes: Array) -> Array:
+	## Assign formation positions (same logic as BattleManager) and sort by slot index.
+	var front_count := 0
+	var back_count := 0
+	var formation: Array = []
+
+	for hero_data: Resource in heroes:
+		var unit_class: Resource = hero_data.get("unit_class")
+		var preferred: String = unit_class.get("preferred_row")
+
+		var assigned_row: String
+		var assigned_slot: int
+
+		if preferred == "front" and front_count < 2:
+			assigned_row = "front"
+			assigned_slot = front_count
+			front_count += 1
+		elif preferred == "back" and back_count < 2:
+			assigned_row = "back"
+			assigned_slot = back_count
+			back_count += 1
+		elif front_count < 2:
+			assigned_row = "front"
+			assigned_slot = front_count
+			front_count += 1
+		else:
+			assigned_row = "back"
+			assigned_slot = back_count
+			back_count += 1
+
+		formation.append({
+			hero = hero_data,
+			row = assigned_row,
+			slot = assigned_slot,
+		})
+
+	# Sort by visual slot index (same formula as BattleUI._hero_slot_index)
+	formation.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return _slot_sort_key(a.row, a.slot) < _slot_sort_key(b.row, b.slot)
+	)
+
+	return formation.map(func(f: Dictionary) -> Resource: return f.hero)
+
+
+func _slot_sort_key(row: String, slot: int) -> int:
+	## Same ordering as BattleUI: back_1=0, back_0=1, front_1=2, front_0=3
+	if row == "front":
+		return 3 - slot
+	return 1 - slot

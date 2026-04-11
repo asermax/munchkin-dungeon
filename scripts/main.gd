@@ -16,9 +16,13 @@ var _party_view: PartyView
 ## Test heroes used until party management is implemented
 var _heroes: Array = []
 
+## Persisted hero state across battles: hero_id -> {current_hp, max_hp, is_alive}
+var _hero_state: Dictionary = {}
+
 
 func _ready() -> void:
 	_load_test_heroes()
+	_init_hero_state()
 	_build_party_view()
 	_connect_signals()
 	_start_new_dungeon()
@@ -33,12 +37,24 @@ func _load_test_heroes() -> void:
 	]
 
 
+func _init_hero_state() -> void:
+	_hero_state.clear()
+
+	for hero_data: Resource in _heroes:
+		var stats := StatCalculator.compute_hero_stats(hero_data)
+		_hero_state[hero_data.id] = {
+			current_hp = stats.max_hp,
+			max_hp = stats.max_hp,
+			is_alive = true,
+		}
+
+
 func _build_party_view() -> void:
 	_party_view = PartyView.new()
 	_party_view.name = "PartyView"
 	_party_view.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_content_area.add_child(_party_view)
-	_party_view.setup(_heroes)
+	_party_view.setup(_heroes, _hero_state)
 
 
 func _connect_signals() -> void:
@@ -56,6 +72,9 @@ func _connect_signals() -> void:
 
 
 func _start_new_dungeon() -> void:
+	_init_hero_state()
+	_rebuild_party_view()
+
 	var target_rooms := randi_range(7, 10)
 	var dungeon := DungeonGenerator.generate("cave", "hard", target_rooms)
 
@@ -98,9 +117,15 @@ func _on_battle_requested(encounter: EncounterData) -> void:
 
 
 func _on_battle_ended(result: Dictionary) -> void:
+	# Save hero state from battle before despawning
+	_save_hero_state()
+
 	# Wait for the result overlay to show briefly
 	await get_tree().create_timer(1.5).timeout
 	_despawn_battle()
+
+	# Rebuild party view with updated state
+	_rebuild_party_view()
 
 	# Show loot modal
 	var battle_result: String = result.get("result", "defeat")
@@ -165,6 +190,14 @@ func _on_curse_triggered(_room: RoomData) -> void:
 func _on_rest_entered(_room: RoomData) -> void:
 	var heal_amount := randi_range(20, 40)
 
+	# Heal surviving heroes
+	for hero_id: String in _hero_state:
+		var state: Dictionary = _hero_state[hero_id]
+		if state.is_alive:
+			state.current_hp = mini(state.max_hp, state.current_hp + heal_amount)
+
+	_rebuild_party_view()
+
 	var modal := RoomResultModal.new()
 	add_child(modal)
 	modal.show_rest(heal_amount)
@@ -177,6 +210,13 @@ func _on_rest_entered(_room: RoomData) -> void:
 
 func _spawn_battle(encounter: EncounterData) -> void:
 	if _battle_instance != null:
+		return
+
+	# Only include alive heroes in battle
+	var alive_heroes := _get_alive_heroes()
+
+	if alive_heroes.is_empty():
+		push_warning("No alive heroes to fight!")
 		return
 
 	_party_view.visible = false
@@ -194,7 +234,7 @@ func _spawn_battle(encounter: EncounterData) -> void:
 	# Wait a frame for the scene to be ready
 	await get_tree().process_frame
 
-	_battle_manager.setup_battle(_heroes, encounter)
+	_battle_manager.setup_battle(alive_heroes, encounter, _hero_state)
 	_battle_manager.start_battle()
 
 
@@ -205,6 +245,34 @@ func _despawn_battle() -> void:
 		_battle_manager = null
 
 	_party_view.visible = true
+
+
+# -- Hero state management --
+
+func _get_alive_heroes() -> Array:
+	var alive: Array = []
+
+	for hero_data: Resource in _heroes:
+		if _hero_state.get(hero_data.id, {}).get("is_alive", true):
+			alive.append(hero_data)
+
+	return alive
+
+
+func _save_hero_state() -> void:
+	if _battle_manager == null:
+		return
+
+	for unit: BattleUnit in _battle_manager.hero_units:
+		_hero_state[unit.unit_id] = {
+			current_hp = unit.current_hp,
+			max_hp = unit.max_hp,
+			is_alive = unit.is_alive,
+		}
+
+
+func _rebuild_party_view() -> void:
+	_party_view.setup(_heroes, _hero_state)
 
 
 # -- Map state sync --
