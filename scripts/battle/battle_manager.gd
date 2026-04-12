@@ -2,42 +2,52 @@ class_name BattleManager
 extends Node
 
 ## Orchestrates the auto-battle loop.
-## Paces actions with a timer for visual readability.
+## Acts as a state machine host: delegates flow to state children.
+## Owns battle data and provides helper methods for states.
 
 var turn_queue: TurnQueue
 var ability_ai: AbilityAI
 var ability_resolver: AbilityResolver
-var _result_emitter: BattleResultEmitter
 
 var hero_units: Array = []         # Array of BattleUnit
 var enemy_units: Array = []        # Array of BattleUnit
 var dead_heroes: Array = []        # For resurrect targeting
 var dead_enemies: Array = []
 
-var is_battle_active: bool = false
 var battle_speed: float = 1.0      # 0=paused, 1=normal, 2=fast, 3=fastest
-var _step_timer: float = 0.0
-var _action_delay: float = 0.8     # seconds between actions at speed 1.0
-var _round_started: bool = false
-var _battle_result: String = ""    # "victory", "defeat", or ""
+var battle_result: String = ""     # "victory", "defeat", or ""
+
+var _current_state: Node           # BattleState — untyped to avoid circular dependency
+var _states: Dictionary = {}       # StringName -> BattleState
 
 var _basic_attack: Resource
 
 
 func _ready() -> void:
-	turn_queue = TurnQueue.new()
-	ability_ai = AbilityAI.new()
-	ability_resolver = AbilityResolver.new()
-	_result_emitter = BattleResultEmitter.new()
+	set_process(false)
+
+	if turn_queue == null:
+		configure()
+
+	_setup_states()
+
+
+func configure(
+	p_turn_queue: TurnQueue = null,
+	p_ability_ai: AbilityAI = null,
+	p_ability_resolver: AbilityResolver = null,
+) -> void:
+	turn_queue = p_turn_queue if p_turn_queue != null else TurnQueue.new()
+	ability_ai = p_ability_ai if p_ability_ai != null else AbilityAI.new()
+	ability_resolver = p_ability_resolver if p_ability_resolver != null else AbilityResolver.new()
 
 
 func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {}) -> void:
-	## heroes: Array of UnitData, encounter: EncounterData, hero_state: persisted HP/alive state
 	hero_units.clear()
 	enemy_units.clear()
 	dead_heroes.clear()
 	dead_enemies.clear()
-	_battle_result = ""
+	battle_result = ""
 
 	# Create hero BattleUnits and assign formation
 	var hero_prefs: Array = heroes.map(
@@ -95,150 +105,77 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 
 
 func start_battle() -> void:
-	is_battle_active = true
-	_round_started = false
+	set_process(true)
 	EventBus.battle_started.emit()
+	_transition_to(&"running")
 
-	# Start the first round
-	_start_new_round()
+
+func end_battle(result: String) -> void:
+	battle_result = result
+	set_process(false)
+	_transition_to(&"ended")
 
 
 func set_speed(speed: float) -> void:
 	battle_speed = speed
+
+	if _current_state != null and _current_state.name == "Running":
+		set_process(speed > 0.0)
+
 	EventBus.speed_changed.emit(speed)
 
 
 func _process(delta: float) -> void:
-	if not is_battle_active or battle_speed == 0.0:
+	if _current_state != null:
+		_current_state.update(delta)
+
+
+# -- State machine --
+
+func _setup_states() -> void:
+	var state_classes := [
+		["Idle", BattleStateIdle],
+		["Running", BattleStateRunning],
+		["Ended", BattleStateEnded],
+	]
+
+	for entry: Array in state_classes:
+		var state: Node = entry[1].new()
+		state.name = entry[0]
+		state.battle = self
+		add_child(state)
+		_states[StringName(entry[0].to_lower())] = state
+
+	_current_state = _states[&"idle"]
+
+
+func _transition_to(state_name: StringName) -> void:
+	var next_state: Node = _states.get(state_name)
+
+	if next_state == null:
+		push_error("Unknown battle state: %s" % state_name)
 		return
 
-	_step_timer += delta * battle_speed
-
-	if _step_timer >= _action_delay:
-		_step_timer = 0.0
-		_step()
-
-
-func _step() -> void:
-	var unit: BattleUnit = turn_queue.get_next_unit()
-
-	if unit == null:
-		_end_round()
+	if _current_state == next_state:
 		return
 
-	_execute_turn(unit)
+	if _current_state != null:
+		_current_state.exit()
+
+	_current_state = next_state
+	_current_state.enter()
 
 
-func _execute_turn(unit: BattleUnit) -> void:
-	EventBus.turn_started.emit(unit.get_display_info())
+# -- Data helpers (used by states) --
 
-	# Process DoT effects at start of turn
-	var dot_results := unit.tick_effects()
-	_result_emitter.emit_dot_results(dot_results, unit)
-
-	if not unit.is_alive:
-		_handle_death(unit)
-		EventBus.turn_ended.emit(unit.get_display_info())
-		_check_battle_end()
-		return
-
-	if unit.is_stunned():
-		_result_emitter.emit_stunned(unit)
-		EventBus.turn_ended.emit(unit.get_display_info())
-		return
-
-	# AI picks action
-	var sides := _get_sides(unit)
-	var action := ability_ai.choose_action(unit, sides.allies, sides.enemies, sides.dead_allies)
-
-	if action.ability == null or action.targets.is_empty():
-		EventBus.turn_ended.emit(unit.get_display_info())
-		return
-
-	# Determine the pool of units that targets were drawn from
-	var source_pool: Array = []
-
-	match action.ability.target_type:
-		"enemy", "all_enemies":
-			source_pool = sides.enemies
-		"ally", "all_allies":
-			source_pool = sides.allies
-
-	# Resolve ability and emit results
-	var results := ability_resolver.resolve(unit, action.targets, action.ability, source_pool)
-	_result_emitter.emit_action_results(results, _find_unit, _handle_death, _handle_resurrect)
-
-	EventBus.turn_ended.emit(unit.get_display_info())
-	_check_battle_end()
-
-
-func _start_new_round() -> void:
-	turn_queue.start_round()
-	_round_started = true
-
-	# Tick cooldowns at round start (after the first round)
-	if turn_queue.get_round_number() > 1:
-		for unit: BattleUnit in hero_units:
-			if unit.is_alive:
-				unit.tick_cooldowns()
-
-		for unit: BattleUnit in enemy_units:
-			if unit.is_alive:
-				unit.tick_cooldowns()
-
-	EventBus.round_started.emit(turn_queue.get_round_number())
-
-
-func _end_round() -> void:
-	EventBus.round_ended.emit(turn_queue.get_round_number())
-
-	if not _check_battle_end():
-		_start_new_round()
-
-
-func _check_battle_end() -> bool:
-	var heroes_alive := hero_units.any(func(u: BattleUnit) -> bool: return u.is_alive)
-	var enemies_alive := enemy_units.any(func(u: BattleUnit) -> bool: return u.is_alive)
-
-	if not enemies_alive:
-		_battle_result = "victory"
-		is_battle_active = false
-		_emit_hero_state()
-		EventBus.battle_ended.emit({"result": "victory"})
-		return true
-
-	if not heroes_alive:
-		_battle_result = "defeat"
-		is_battle_active = false
-		_emit_hero_state()
-		EventBus.battle_ended.emit({"result": "defeat"})
-		return true
-
-	return false
-
-
-func _emit_hero_state() -> void:
-	var states: Dictionary = {}
-
-	for unit: BattleUnit in hero_units:
-		states[unit.unit_id] = {
-			current_hp = unit.current_hp,
-			max_hp = unit.max_hp,
-			is_alive = unit.is_alive,
-		}
-
-	EventBus.battle_hero_state_updated.emit(states)
-
-
-func _get_sides(unit: BattleUnit) -> Dictionary:
-	## Returns {allies, enemies, dead_allies} arrays relative to the given unit.
+func get_sides(unit: BattleUnit) -> Dictionary:
 	if unit.is_hero:
 		return {allies = hero_units, enemies = enemy_units, dead_allies = dead_heroes}
 
 	return {allies = enemy_units, enemies = hero_units, dead_allies = dead_enemies}
 
 
-func _handle_death(unit: BattleUnit) -> void:
+func handle_death(unit: BattleUnit) -> void:
 	unit.is_alive = false
 	EventBus.unit_died.emit(unit.get_display_info())
 
@@ -248,14 +185,14 @@ func _handle_death(unit: BattleUnit) -> void:
 		dead_enemies.append(unit)
 
 
-func _handle_resurrect(unit: BattleUnit) -> void:
+func handle_resurrect(unit: BattleUnit) -> void:
 	if unit.is_hero:
 		dead_heroes.erase(unit)
 	else:
 		dead_enemies.erase(unit)
 
 
-func _find_unit(unit_id: String) -> BattleUnit:
+func find_unit(unit_id: String) -> BattleUnit:
 	for unit: BattleUnit in hero_units:
 		if unit.unit_id == unit_id:
 			return unit
@@ -273,3 +210,16 @@ func _find_unit(unit_id: String) -> BattleUnit:
 			return unit
 
 	return null
+
+
+func emit_hero_state() -> void:
+	var states: Dictionary = {}
+
+	for unit: BattleUnit in hero_units:
+		states[unit.unit_id] = {
+			current_hp = unit.current_hp,
+			max_hp = unit.max_hp,
+			is_alive = unit.is_alive,
+		}
+
+	EventBus.battle_hero_state_updated.emit(states)

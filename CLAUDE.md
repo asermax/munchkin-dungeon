@@ -15,14 +15,17 @@ Munchkin × Darkest Dungeon mashup. Auto-battle with formation-based combat. Bui
 Auto-battle system with formation-based combat (2 front + 2 back per side). The player builds a party and watches battles unfold — no real-time control during fights.
 
 ### Core Systems
-- **BattleManager** (Node): orchestrates the auto-battle loop, paces actions with a timer
+- **BattleManager** (Node): state machine host for the battle loop, owns unit data and helper methods
+- **BattleState** (Node): base class for battle states (Idle, Running, Ended) in `scripts/battle/states/`
+- **BattleAction** (RefCounted): command pattern wrapping actor + ability + targets, with `execute()` and `serialize()` for LLM integration
 - **TurnQueue** (RefCounted): round-based initiative sorting, each unit acts once per round
-- **AbilityAI** (RefCounted): deterministic priority-based AI picks abilities per class
+- **AbilityAI** (RefCounted): deterministic priority-based AI picks abilities per class, returns BattleAction
 - **AbilityResolver** (RefCounted): executes abilities, resolves damage/heal/buff
 - **StatCalculator** (RefCounted): centralized formulas from the design doc
 - **BattleUnit** (RefCounted): runtime wrapper holding live HP, cooldowns, effects
+- **HeroStateManager** (RefCounted): manages hero data and persisted HP/alive state across battles
+- **RoomHandler** (Node): handles room outcome modals (treasure, curse, rest, battle loot)
 - **EventBus** (autoload): decoupled signal-based communication
-- **GameState** (autoload): current battle references
 
 ### Data Model
 - **Resources** (templates): AbilityData, RaceData, ClassData, EquipmentData, UnitData, MonsterData, EncounterData
@@ -31,11 +34,14 @@ Auto-battle system with formation-based combat (2 front + 2 back per side). The 
 - Monster stats are flat (no composition)
 
 ### Combat Flow
-1. BattleManager creates BattleUnits from UnitData/MonsterData, assigns formation
-2. Each round: sort by initiative, each unit acts once
-3. AI picks ability from priority tree (highest priority first, check condition + cooldown)
-4. Damage pipeline: dodge check → raw damage → crit check → defense reduction → min 1
-5. Battle ends when one side is eliminated
+1. BattleManager.setup_battle() creates BattleUnits, assigns formation → state: Idle
+2. BattleManager.start_battle() → transitions to Running state
+3. Running state drives timer-paced turns: sort by initiative, each unit acts once per round
+4. AbilityAI picks ability → returns BattleAction (command pattern with serialize() for LLM)
+5. BattleAction.execute() resolves through AbilityResolver → damage/heal/buff pipeline
+6. Damage pipeline: dodge check → raw damage → crit check → defense reduction → min 1
+7. Battle ends when one side eliminated → transitions to Ended state
+8. BattleManager.configure() accepts injected dependencies (TurnQueue, AbilityAI, AbilityResolver) for testing/LLM swap
 
 ## Project Structure
 
@@ -44,9 +50,12 @@ res://
 ├── scenes/           # .tscn files (generated via headless scripts)
 │   └── main.tscn
 ├── scripts/          # .gd files
-│   ├── battle/       # BattleManager, BattleUnit, TurnQueue, AbilityAI, AbilityResolver, StatCalculator
+│   ├── battle/       # BattleManager, BattleUnit, BattleAction, TurnQueue, AbilityAI, AbilityResolver, StatCalculator
+│   │   └── states/   # BattleState, BattleStateIdle, BattleStateRunning, BattleStateEnded
 │   ├── ui/           # BattleUI, UnitSlotUI
-│   └── ai/           # LLMClient (z.ai)
+│   ├── ai/           # LLMClient (z.ai)
+│   ├── hero_state_manager.gd
+│   └── room_handler.gd
 ├── resources/        # Resource class definitions (.gd)
 │   ├── ability_data.gd
 │   ├── race_data.gd
@@ -64,7 +73,7 @@ res://
 │   ├── encounters/   # Preset encounter groups
 │   └── heroes/       # Test hero configurations
 ├── assets/           # Art, sprites, sprite_prompts.md
-├── autoload/         # EventBus, GameState
+├── autoload/         # EventBus
 ├── addons/           # GDAI MCP
 └── tools/            # setup_scenes.gd, setup_data.gd
 ```
@@ -80,7 +89,8 @@ res://
 - **Signals**: use `&"StringName"` syntax for signal/state references
 - **@export**: for inspector-editable properties
 - **@onready**: for node references resolved at _ready time
-- **RefCounted** over Node for pure logic classes (TurnQueue, AbilityAI, AbilityResolver, StatCalculator, BattleUnit)
+- **RefCounted** over Node for pure logic classes (TurnQueue, AbilityAI, AbilityResolver, StatCalculator, BattleUnit, BattleAction, HeroStateManager)
+- **Circular deps**: when two class_name scripts reference each other, type the back-reference as `Node` or `RefCounted` to break the cycle (see BattleState.battle)
 
 ## .tscn File Editing Rules
 

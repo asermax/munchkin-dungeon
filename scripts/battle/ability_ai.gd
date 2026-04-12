@@ -16,9 +16,7 @@ func setup(basic_attack: Resource) -> void:
 	_basic_attack = basic_attack
 
 
-func choose_action(actor: BattleUnit, allies: Array, enemies: Array, dead_allies: Array) -> Dictionary:
-	## Returns {ability: Resource, targets: Array[BattleUnit]}
-
+func choose_action(actor: BattleUnit, allies: Array, enemies: Array, dead_allies: Array) -> BattleAction:
 	for ab: Resource in actor.abilities:
 		# Skip basic attack in the priority loop — it's the fallback
 		if ab.id == "basic_attack":
@@ -35,13 +33,13 @@ func choose_action(actor: BattleUnit, allies: Array, enemies: Array, dead_allies
 		if targets.is_empty():
 			continue
 
-		return {"ability": ab, "targets": targets}
+		return BattleAction.create(actor, ab, targets)
 
 	# Fallback: basic attack
 	var basic := _basic_attack if _basic_attack != null else _find_basic_attack(actor)
 	var basic_targets := _select_targets(actor, basic, allies, enemies, dead_allies)
 
-	return {"ability": basic, "targets": basic_targets}
+	return BattleAction.create(actor, basic, basic_targets)
 
 
 func _check_condition(condition: String, actor: BattleUnit, allies: Array, enemies: Array, dead_allies: Array) -> bool:

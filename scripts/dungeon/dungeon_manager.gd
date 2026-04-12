@@ -29,9 +29,6 @@ func start_dungeon(dungeon: DungeonData) -> void:
 	_is_in_battle = false
 	_current_room = null
 
-	GameState.current_dungeon = dungeon
-	GameState.dungeon_manager = self
-
 	EventBus.dungeon_started.emit(dungeon)
 
 	# Make first room available
