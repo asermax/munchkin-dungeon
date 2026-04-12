@@ -1,6 +1,9 @@
 # Godot
 .godot/
 
+# GUT testing addon (re-install from AssetLib)
+addons/gut/
+
 # Build
 build/
 
