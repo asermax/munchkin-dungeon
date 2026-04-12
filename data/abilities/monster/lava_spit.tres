@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_0r8yn"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_mn5ib"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_cno6j"]
+
+[sub_resource type="Resource" id="Resource_jb0gt"]
+script = ExtResource("1_mn5ib")
 
 [resource]
-script = ExtResource("1_0r8yn")
+script = ExtResource("2_cno6j")
 id = "lava_spit"
 display_name = "Lava Spit"
 description = "Spits molten lava at a single target."
@@ -15,3 +19,4 @@ secondary_chance = 0.8
 secondary_duration = 3
 secondary_value = 6
 ai_priority = 35
+ai_condition = SubResource("Resource_jb0gt")

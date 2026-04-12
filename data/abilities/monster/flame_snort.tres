@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_tmgqt"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_y6fyv"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_hwkgt"]
+
+[sub_resource type="Resource" id="Resource_q7jim"]
+script = ExtResource("1_y6fyv")
 
 [resource]
-script = ExtResource("1_tmgqt")
+script = ExtResource("2_hwkgt")
 id = "flame_snort"
 display_name = "Flame Snort"
 description = "Blasts flames at the front row."
@@ -15,3 +19,4 @@ secondary_chance = 0.5
 secondary_duration = 2
 secondary_value = 5
 ai_priority = 25
+ai_condition = SubResource("Resource_q7jim")

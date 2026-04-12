@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_j5hna"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_00ifq"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_0pd34"]
+
+[sub_resource type="Resource" id="Resource_xarc3"]
+script = ExtResource("1_00ifq")
+scope = "self"
+property = "hp_pct"
+compare = "lt"
+value = 0.5
 
 [resource]
-script = ExtResource("1_j5hna")
+script = ExtResource("2_0pd34")
 id = "arcane_shield"
 display_name = "Arcane Shield"
 description = "Creates a magical barrier."
@@ -16,4 +24,4 @@ secondary_chance = 1.0
 secondary_duration = 2
 secondary_value = 4
 ai_priority = 35
-ai_condition = "self_below_50"
+ai_condition = SubResource("Resource_xarc3")

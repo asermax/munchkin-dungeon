@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_6h2py"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_4rgto"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_ikghj"]
+
+[sub_resource type="Resource" id="Resource_inidi"]
+script = ExtResource("1_4rgto")
+scope = "any_ally"
+property = "has_negative_effect"
+compare = "eq"
+value = 1.0
 
 [resource]
-script = ExtResource("1_6h2py")
+script = ExtResource("2_ikghj")
 id = "purify"
 display_name = "Purify"
 description = "Removes negative effects from an ally."
@@ -14,4 +22,5 @@ effect_type = "buff"
 secondary_effect = "cleanse"
 secondary_chance = 1.0
 ai_priority = 50
-ai_condition = "ally_cursed"
+ai_condition = SubResource("Resource_inidi")
+ai_target_strategy = "has_negative_effect"

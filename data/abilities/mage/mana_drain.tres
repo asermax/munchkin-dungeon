@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_p186o"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_vcg8g"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_maqjq"]
+
+[sub_resource type="Resource" id="Resource_ue4o5"]
+script = ExtResource("1_vcg8g")
+scope = "self"
+property = "hp_pct"
+compare = "lt"
+value = 0.5
 
 [resource]
-script = ExtResource("1_p186o")
+script = ExtResource("2_maqjq")
 id = "mana_drain"
 display_name = "Mana Drain"
 description = "Drains life from an enemy."
@@ -14,4 +22,4 @@ secondary_effect = "life_drain"
 secondary_chance = 1.0
 secondary_value = 8
 ai_priority = 25
-ai_condition = "self_below_50"
+ai_condition = SubResource("Resource_ue4o5")

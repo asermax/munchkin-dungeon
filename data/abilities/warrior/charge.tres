@@ -1,12 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_nl4yb"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_p4fae"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_cknsh"]
+
+[sub_resource type="Resource" id="Resource_pf8be"]
+script = ExtResource("1_p4fae")
 
 [resource]
-script = ExtResource("1_nl4yb")
+script = ExtResource("2_cknsh")
 id = "charge"
 display_name = "Charge"
 description = "Charges an enemy for 1.4x damage."
 cooldown = 2
 power = 1.4
 ai_priority = 30
+ai_condition = SubResource("Resource_pf8be")

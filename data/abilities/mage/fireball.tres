@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_5snh5"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_6ei2p"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_bn88w"]
+
+[sub_resource type="Resource" id="Resource_joy33"]
+script = ExtResource("1_6ei2p")
 
 [resource]
-script = ExtResource("1_5snh5")
+script = ExtResource("2_bn88w")
 id = "fireball"
 display_name = "Fireball"
 description = "Hurls a ball of fire for 1.5x magic damage."
@@ -12,3 +16,4 @@ reach = "ranged"
 damage_stat = "int"
 power = 1.5
 ai_priority = 40
+ai_condition = SubResource("Resource_joy33")

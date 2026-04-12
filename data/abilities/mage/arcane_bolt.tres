@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_jqj1l"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_am7hw"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_ly5ih"]
+
+[sub_resource type="Resource" id="Resource_1l41h"]
+script = ExtResource("1_am7hw")
 
 [resource]
-script = ExtResource("1_jqj1l")
+script = ExtResource("2_ly5ih")
 id = "arcane_bolt"
 display_name = "Arcane Bolt"
 description = "A quick bolt of arcane energy."
@@ -11,3 +15,4 @@ reach = "ranged"
 damage_stat = "int"
 power = 1.1
 ai_priority = 10
+ai_condition = SubResource("Resource_1l41h")

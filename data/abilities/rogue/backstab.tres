@@ -1,12 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_5t5rr"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_hiyl1"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_xqqbc"]
+
+[sub_resource type="Resource" id="Resource_p1oqp"]
+script = ExtResource("1_hiyl1")
 
 [resource]
-script = ExtResource("1_5t5rr")
+script = ExtResource("2_xqqbc")
 id = "backstab"
 display_name = "Backstab"
 description = "Strikes from behind for 1.6x damage."
 cooldown = 1
 power = 1.6
 ai_priority = 30
+ai_condition = SubResource("Resource_p1oqp")

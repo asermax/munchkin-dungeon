@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sodex"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_8yth4"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_eg6gw"]
+
+[sub_resource type="Resource" id="Resource_382h1"]
+script = ExtResource("1_8yth4")
 
 [resource]
-script = ExtResource("1_sodex")
+script = ExtResource("2_eg6gw")
 id = "frost"
 display_name = "Frost"
 description = "Deals damage and may stun an enemy."
@@ -15,3 +19,4 @@ secondary_effect = "stun"
 secondary_chance = 0.4
 secondary_duration = 1
 ai_priority = 50
+ai_condition = SubResource("Resource_382h1")

@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_hm38e"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_ht33g"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_co4h4"]
+
+[sub_resource type="Resource" id="Resource_t3fkc"]
+script = ExtResource("1_ht33g")
+scope = "any_ally"
+property = "hp_pct"
+compare = "lt"
+value = 0.4
 
 [resource]
-script = ExtResource("1_hm38e")
+script = ExtResource("2_co4h4")
 id = "taunt"
 display_name = "Taunt"
 description = "Forces enemies to target the warrior."
@@ -14,4 +22,4 @@ power = 0.0
 secondary_effect = "taunt"
 secondary_duration = 2
 ai_priority = 60
-ai_condition = "ally_below_40"
+ai_condition = SubResource("Resource_t3fkc")

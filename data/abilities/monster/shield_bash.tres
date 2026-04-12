@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_i4scf"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_wqm26"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_5s2ac"]
+
+[sub_resource type="Resource" id="Resource_vnkxb"]
+script = ExtResource("1_wqm26")
 
 [resource]
-script = ExtResource("1_i4scf")
+script = ExtResource("2_5s2ac")
 id = "shield_bash"
 display_name = "Shield Bash"
 description = "Bashes with a shield, may stun."
@@ -13,3 +17,4 @@ secondary_effect = "stun"
 secondary_chance = 0.5
 secondary_duration = 1
 ai_priority = 20
+ai_condition = SubResource("Resource_vnkxb")

@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sgdfq"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_0tt4w"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_wf6dy"]
+
+[sub_resource type="Resource" id="Resource_451pa"]
+script = ExtResource("1_0tt4w")
+scope = "dead_allies"
+property = "count"
+compare = "gte"
+value = 1.0
 
 [resource]
-script = ExtResource("1_sgdfq")
+script = ExtResource("2_wf6dy")
 id = "resurrect"
 display_name = "Resurrect"
 description = "Revives a fallen ally at 10% HP. Once per battle."
@@ -12,4 +20,5 @@ target_type = "ally"
 reach = "ranged"
 effect_type = "resurrect"
 ai_priority = 70
-ai_condition = "ally_dead"
+ai_condition = SubResource("Resource_451pa")
+ai_target_strategy = "first_dead"

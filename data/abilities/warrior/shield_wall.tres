@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_hbfr6"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_tbmr0"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_x58mr"]
+
+[sub_resource type="Resource" id="Resource_cd7o6"]
+script = ExtResource("1_tbmr0")
+scope = "self"
+property = "hp_pct"
+compare = "lt"
+value = 0.5
 
 [resource]
-script = ExtResource("1_hbfr6")
+script = ExtResource("2_x58mr")
 id = "shield_wall"
 display_name = "Shield Wall"
 description = "Raises defense significantly for 2 rounds."
@@ -15,4 +23,4 @@ secondary_chance = 1.0
 secondary_duration = 2
 secondary_value = 5
 ai_priority = 50
-ai_condition = "self_below_50"
+ai_condition = SubResource("Resource_cd7o6")

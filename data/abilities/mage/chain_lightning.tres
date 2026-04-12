@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_in42c"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_aimth"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_mpq48"]
+
+[sub_resource type="Resource" id="Resource_5aacf"]
+script = ExtResource("1_aimth")
+scope = "enemies"
+property = "alive_count"
+compare = "gte"
+value = 3.0
 
 [resource]
-script = ExtResource("1_in42c")
+script = ExtResource("2_mpq48")
 id = "chain_lightning"
 display_name = "Chain Lightning"
 description = "Shocks all enemies with lightning."
@@ -13,4 +21,4 @@ reach = "ranged"
 damage_stat = "int"
 power = 0.7
 ai_priority = 60
-ai_condition = "enemies_gte_3"
+ai_condition = SubResource("Resource_5aacf")

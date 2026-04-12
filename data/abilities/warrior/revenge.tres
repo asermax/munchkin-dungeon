@@ -1,13 +1,21 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_wjnix"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_e2w88"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_bmtdm"]
+
+[sub_resource type="Resource" id="Resource_4ux6e"]
+script = ExtResource("1_e2w88")
+scope = "self"
+property = "hp_pct"
+compare = "lt"
+value = 0.5
 
 [resource]
-script = ExtResource("1_wjnix")
+script = ExtResource("2_bmtdm")
 id = "revenge"
 display_name = "Revenge"
 description = "Powerful counter-strike dealing 1.8x damage."
 cooldown = 2
 power = 1.8
 ai_priority = 40
-ai_condition = "self_below_50"
+ai_condition = SubResource("Resource_4ux6e")

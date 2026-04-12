@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_dkcn0"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_8vsh6"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_x1ux3"]
+
+[sub_resource type="Resource" id="Resource_ah4ma"]
+script = ExtResource("1_8vsh6")
+scope = "any_ally"
+property = "hp_pct"
+compare = "lt"
+value = 0.4
 
 [resource]
-script = ExtResource("1_dkcn0")
+script = ExtResource("2_x1ux3")
 id = "heal_ally"
 display_name = "Heal Ally"
 description = "Heals a wounded ally."
@@ -13,4 +21,5 @@ reach = "ranged"
 effect_type = "heal"
 heal_amount = 30
 ai_priority = 30
-ai_condition = "ally_below_40"
+ai_condition = SubResource("Resource_ah4ma")
+ai_target_strategy = "lowest_hp_pct"

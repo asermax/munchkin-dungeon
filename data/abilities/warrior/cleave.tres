@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_rloh6"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_g2wie"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_u4k8c"]
+
+[sub_resource type="Resource" id="Resource_0orhq"]
+script = ExtResource("1_g2wie")
+scope = "enemies"
+property = "alive_count"
+compare = "gte"
+value = 3.0
 
 [resource]
-script = ExtResource("1_rloh6")
+script = ExtResource("2_u4k8c")
 id = "cleave"
 display_name = "Cleave"
 description = "Strikes all enemies in the front row."
@@ -11,4 +19,4 @@ cooldown = 2
 target_type = "all_enemies"
 power = 0.8
 ai_priority = 25
-ai_condition = "enemies_gte_3"
+ai_condition = SubResource("Resource_0orhq")

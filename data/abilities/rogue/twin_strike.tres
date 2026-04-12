@@ -1,12 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_e7vpy"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_c64cp"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_os64k"]
+
+[sub_resource type="Resource" id="Resource_evcxi"]
+script = ExtResource("1_c64cp")
 
 [resource]
-script = ExtResource("1_e7vpy")
+script = ExtResource("2_os64k")
 id = "twin_strike"
 display_name = "Twin Strike"
 description = "Two quick strikes at 0.7x each."
 cooldown = 1
 power = 1.4
 ai_priority = 10
+ai_condition = SubResource("Resource_evcxi")

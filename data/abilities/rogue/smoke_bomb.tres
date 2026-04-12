@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_scv1g"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_sh413"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_cdfbh"]
+
+[sub_resource type="Resource" id="Resource_m53vv"]
+script = ExtResource("1_sh413")
+scope = "enemies"
+property = "alive_count"
+compare = "gte"
+value = 3.0
 
 [resource]
-script = ExtResource("1_scv1g")
+script = ExtResource("2_cdfbh")
 id = "smoke_bomb"
 display_name = "Smoke Bomb"
 description = "Reduces all enemies' accuracy."
@@ -16,4 +24,4 @@ secondary_chance = 1.0
 secondary_duration = 2
 secondary_value = 15
 ai_priority = 50
-ai_condition = "enemies_gte_3"
+ai_condition = SubResource("Resource_m53vv")

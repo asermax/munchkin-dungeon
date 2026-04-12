@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_qe2wg"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_eojae"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_ae4ng"]
+
+[sub_resource type="Resource" id="Resource_muukd"]
+script = ExtResource("1_eojae")
 
 [resource]
-script = ExtResource("1_qe2wg")
+script = ExtResource("2_ae4ng")
 id = "bless"
 display_name = "Bless"
 description = "Boosts an ally's damage for 2 rounds."
@@ -16,3 +20,5 @@ secondary_chance = 1.0
 secondary_duration = 2
 secondary_value = 4
 ai_priority = 30
+ai_condition = SubResource("Resource_muukd")
+ai_target_strategy = "front_row"

@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_svhw8"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_sxai8"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_lt3uk"]
+
+[sub_resource type="Resource" id="Resource_o5hxs"]
+script = ExtResource("1_sxai8")
 
 [resource]
-script = ExtResource("1_svhw8")
+script = ExtResource("2_lt3uk")
 id = "holy_shield"
 display_name = "Holy Shield"
 description = "Grants an ally a defensive buff."
@@ -16,3 +20,5 @@ secondary_chance = 1.0
 secondary_duration = 2
 secondary_value = 4
 ai_priority = 40
+ai_condition = SubResource("Resource_o5hxs")
+ai_target_strategy = "front_row"

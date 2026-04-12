@@ -26,4 +26,5 @@ extends Resource
 
 ## AI behavior
 @export var ai_priority: int = 0                # higher = tried first in the priority tree
-@export var ai_condition: String = "always"     # "always", "ally_below_40", "enemy_below_20", "self_below_30", "self_below_50", "enemies_gte_3", "ally_cursed"
+@export var ai_condition: Resource                # AIConditionData — declarative trigger condition
+@export var ai_target_strategy: String = "weighted_random"  # "weighted_random", "lowest_hp", "lowest_hp_pct", "has_negative_effect", "front_row", "first_dead"

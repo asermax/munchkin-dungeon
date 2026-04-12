@@ -1,9 +1,14 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_krtt8"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_vi3gg"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_6issw"]
+
+[sub_resource type="Resource" id="Resource_yew1t"]
+script = ExtResource("1_vi3gg")
 
 [resource]
-script = ExtResource("1_krtt8")
+script = ExtResource("2_6issw")
 id = "basic_attack"
 display_name = "Basic Attack"
 description = "A simple attack."
+ai_condition = SubResource("Resource_yew1t")

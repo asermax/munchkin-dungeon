@@ -8,6 +8,7 @@ extends SceneTree
 ## We load each resource script explicitly and instantiate from it.
 
 var AbilityScript: GDScript
+var AIConditionScript: GDScript
 var RaceScript: GDScript
 var ClassScript: GDScript
 var EquipmentScript: GDScript
@@ -18,6 +19,7 @@ var EncounterScript: GDScript
 
 func _init() -> void:
 	AbilityScript = load("res://resources/ability_data.gd")
+	AIConditionScript = load("res://resources/ai_condition_data.gd")
 	RaceScript = load("res://resources/race_data.gd")
 	ClassScript = load("res://resources/class_data.gd")
 	EquipmentScript = load("res://resources/equipment_data.gd")
@@ -50,7 +52,8 @@ func _create_abilities() -> void:
 	_save(_ability("basic_attack", "Basic Attack", "A simple attack.", {
 		"cooldown": 0, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.0,
-		"ai_priority": 0, "ai_condition": "always",
+		"ai_priority": 0, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/basic_attack.tres")
 
 	# ---- Warrior ----
@@ -59,7 +62,8 @@ func _create_abilities() -> void:
 		"cooldown": 3, "target_type": "self", "reach": "melee",
 		"effect_type": "taunt", "power": 0.0,
 		"secondary_effect": "taunt", "secondary_duration": 2,
-		"ai_priority": 60, "ai_condition": "ally_below_40",
+		"ai_priority": 60, "ai_condition": _condition("any_ally", "hp_pct", "lt", 0.4),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/taunt.tres")
 
 	_save(_ability("shield_wall", "Shield Wall", "Raises defense significantly for 2 rounds.", {
@@ -67,31 +71,36 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "defense_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 5,
-		"ai_priority": 50, "ai_condition": "self_below_50",
+		"ai_priority": 50, "ai_condition": _condition("self", "hp_pct", "lt", 0.5),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/shield_wall.tres")
 
 	_save(_ability("revenge", "Revenge", "Powerful counter-strike dealing 1.8x damage.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.8,
-		"ai_priority": 40, "ai_condition": "self_below_50",
+		"ai_priority": 40, "ai_condition": _condition("self", "hp_pct", "lt", 0.5),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/revenge.tres")
 
 	_save(_ability("charge", "Charge", "Charges an enemy for 1.4x damage.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.4,
-		"ai_priority": 30, "ai_condition": "always",
+		"ai_priority": 30, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/charge.tres")
 
 	_save(_ability("cleave", "Cleave", "Strikes all enemies in the front row.", {
 		"cooldown": 2, "target_type": "all_enemies", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 0.8,
-		"ai_priority": 25, "ai_condition": "enemies_gte_3",
+		"ai_priority": 25, "ai_condition": _condition("enemies", "alive_count", "gte", 3.0),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/cleave.tres")
 
 	_save(_ability("power_strike", "Power Strike", "A focused blow dealing 1.3x damage.", {
 		"cooldown": 1, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.3,
-		"ai_priority": 10, "ai_condition": "always",
+		"ai_priority": 10, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/warrior/power_strike.tres")
 
 	# ---- Mage ----
@@ -99,20 +108,23 @@ func _create_abilities() -> void:
 	_save(_ability("chain_lightning", "Chain Lightning", "Shocks all enemies with lightning.", {
 		"cooldown": 3, "target_type": "all_enemies", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 0.7,
-		"ai_priority": 60, "ai_condition": "enemies_gte_3",
+		"ai_priority": 60, "ai_condition": _condition("enemies", "alive_count", "gte", 3.0),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/chain_lightning.tres")
 
 	_save(_ability("frost", "Frost", "Deals damage and may stun an enemy.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 1.2,
 		"secondary_effect": "stun", "secondary_chance": 0.4, "secondary_duration": 1,
-		"ai_priority": 50, "ai_condition": "always",
+		"ai_priority": 50, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/frost.tres")
 
 	_save(_ability("fireball", "Fireball", "Hurls a ball of fire for 1.5x magic damage.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 1.5,
-		"ai_priority": 40, "ai_condition": "always",
+		"ai_priority": 40, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/fireball.tres")
 
 	_save(_ability("arcane_shield", "Arcane Shield", "Creates a magical barrier.", {
@@ -120,20 +132,23 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "defense_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 4,
-		"ai_priority": 35, "ai_condition": "self_below_50",
+		"ai_priority": 35, "ai_condition": _condition("self", "hp_pct", "lt", 0.5),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/arcane_shield.tres")
 
 	_save(_ability("mana_drain", "Mana Drain", "Drains life from an enemy.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 1.0,
 		"secondary_effect": "life_drain", "secondary_chance": 1.0, "secondary_value": 8,
-		"ai_priority": 25, "ai_condition": "self_below_50",
+		"ai_priority": 25, "ai_condition": _condition("self", "hp_pct", "lt", 0.5),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/mana_drain.tres")
 
 	_save(_ability("arcane_bolt", "Arcane Bolt", "A quick bolt of arcane energy.", {
 		"cooldown": 0, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 1.1,
-		"ai_priority": 10, "ai_condition": "always",
+		"ai_priority": 10, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/mage/arcane_bolt.tres")
 
 	# ---- Rogue ----
@@ -143,7 +158,8 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "dodge_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 20,
-		"ai_priority": 60, "ai_condition": "self_below_30",
+		"ai_priority": 60, "ai_condition": _condition("self", "hp_pct", "lt", 0.3),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/rogue/evasion.tres")
 
 	_save(_ability("smoke_bomb", "Smoke Bomb", "Reduces all enemies' accuracy.", {
@@ -151,19 +167,22 @@ func _create_abilities() -> void:
 		"effect_type": "debuff",
 		"secondary_effect": "accuracy_down", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 15,
-		"ai_priority": 50, "ai_condition": "enemies_gte_3",
+		"ai_priority": 50, "ai_condition": _condition("enemies", "alive_count", "gte", 3.0),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/rogue/smoke_bomb.tres")
 
 	_save(_ability("execute", "Execute", "Finishes off a weakened enemy for 2.0x damage.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 2.0,
-		"ai_priority": 45, "ai_condition": "enemy_below_20",
+		"ai_priority": 45, "ai_condition": _condition("any_enemy", "hp_pct", "lt", 0.2),
+		"ai_target_strategy": "lowest_hp",
 	}), "res://data/abilities/rogue/execute.tres")
 
 	_save(_ability("backstab", "Backstab", "Strikes from behind for 1.6x damage.", {
 		"cooldown": 1, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.6,
-		"ai_priority": 30, "ai_condition": "always",
+		"ai_priority": 30, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/rogue/backstab.tres")
 
 	_save(_ability("poison_blade", "Poison Blade", "Poisons the target for damage over time.", {
@@ -171,13 +190,15 @@ func _create_abilities() -> void:
 		"effect_type": "damage", "damage_stat": "str", "power": 1.0,
 		"secondary_effect": "poison", "secondary_chance": 0.8,
 		"secondary_duration": 3, "secondary_value": 5,
-		"ai_priority": 20, "ai_condition": "always",
+		"ai_priority": 20, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/rogue/poison_blade.tres")
 
 	_save(_ability("twin_strike", "Twin Strike", "Two quick strikes at 0.7x each.", {
 		"cooldown": 1, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.4,
-		"ai_priority": 10, "ai_condition": "always",
+		"ai_priority": 10, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/rogue/twin_strike.tres")
 
 	# ---- Cleric ----
@@ -185,20 +206,23 @@ func _create_abilities() -> void:
 	_save(_ability("resurrect", "Resurrect", "Revives a fallen ally at 10% HP. Once per battle.", {
 		"cooldown": 99, "target_type": "ally", "reach": "ranged",
 		"effect_type": "resurrect",
-		"ai_priority": 70, "ai_condition": "ally_dead",
+		"ai_priority": 70, "ai_condition": _condition("dead_allies", "count", "gte", 1.0),
+		"ai_target_strategy": "first_dead",
 	}), "res://data/abilities/cleric/resurrect.tres")
 
 	_save(_ability("heal", "Heal", "Restores a significant amount of HP to an ally.", {
 		"cooldown": 2, "target_type": "ally", "reach": "ranged",
 		"effect_type": "heal", "heal_amount": 30,
-		"ai_priority": 60, "ai_condition": "ally_below_40",
+		"ai_priority": 60, "ai_condition": _condition("any_ally", "hp_pct", "lt", 0.4),
+		"ai_target_strategy": "lowest_hp_pct",
 	}), "res://data/abilities/cleric/heal.tres")
 
 	_save(_ability("purify", "Purify", "Removes negative effects from an ally.", {
 		"cooldown": 2, "target_type": "ally", "reach": "ranged",
 		"effect_type": "buff",
 		"secondary_effect": "cleanse", "secondary_chance": 1.0,
-		"ai_priority": 50, "ai_condition": "ally_cursed",
+		"ai_priority": 50, "ai_condition": _condition("any_ally", "has_negative_effect", "eq", 1.0),
+		"ai_target_strategy": "has_negative_effect",
 	}), "res://data/abilities/cleric/purify.tres")
 
 	_save(_ability("holy_shield", "Holy Shield", "Grants an ally a defensive buff.", {
@@ -206,7 +230,8 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "defense_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 4,
-		"ai_priority": 40, "ai_condition": "always",
+		"ai_priority": 40, "ai_condition": _always(),
+		"ai_target_strategy": "front_row",
 	}), "res://data/abilities/cleric/holy_shield.tres")
 
 	_save(_ability("bless", "Bless", "Boosts an ally's damage for 2 rounds.", {
@@ -214,13 +239,15 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "damage_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 4,
-		"ai_priority": 30, "ai_condition": "always",
+		"ai_priority": 30, "ai_condition": _always(),
+		"ai_target_strategy": "front_row",
 	}), "res://data/abilities/cleric/bless.tres")
 
 	_save(_ability("smite", "Smite", "Holy damage against a single enemy.", {
 		"cooldown": 1, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "int", "power": 1.3,
-		"ai_priority": 10, "ai_condition": "always",
+		"ai_priority": 10, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/cleric/smite.tres")
 
 	# ---- Monster abilities ----
@@ -229,19 +256,22 @@ func _create_abilities() -> void:
 		"cooldown": 2, "target_type": "enemy", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.2,
 		"secondary_effect": "stun", "secondary_chance": 0.5, "secondary_duration": 1,
-		"ai_priority": 20, "ai_condition": "always",
+		"ai_priority": 20, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/shield_bash.tres")
 
 	_save(_ability("smash", "Smash", "Hits all front-row enemies.", {
 		"cooldown": 3, "target_type": "all_enemies", "reach": "melee",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.3,
-		"ai_priority": 20, "ai_condition": "always",
+		"ai_priority": 20, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/smash.tres")
 
 	_save(_ability("heal_ally", "Heal Ally", "Heals a wounded ally.", {
 		"cooldown": 2, "target_type": "ally", "reach": "ranged",
 		"effect_type": "heal", "heal_amount": 30,
-		"ai_priority": 30, "ai_condition": "ally_below_40",
+		"ai_priority": 30, "ai_condition": _condition("any_ally", "hp_pct", "lt", 0.4),
+		"ai_target_strategy": "lowest_hp_pct",
 	}), "res://data/abilities/monster/heal_ally.tres")
 
 	_save(_ability("iron_hide", "Iron Hide", "Greatly increases own defense.", {
@@ -249,7 +279,8 @@ func _create_abilities() -> void:
 		"effect_type": "buff",
 		"secondary_effect": "defense_up", "secondary_chance": 1.0,
 		"secondary_duration": 2, "secondary_value": 6,
-		"ai_priority": 20, "ai_condition": "always",
+		"ai_priority": 20, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/iron_hide.tres")
 
 	_save(_ability("gore", "Gore", "Gores the target, causing bleed.", {
@@ -257,20 +288,23 @@ func _create_abilities() -> void:
 		"effect_type": "damage", "damage_stat": "str", "power": 1.5,
 		"secondary_effect": "bleed", "secondary_chance": 0.7,
 		"secondary_duration": 3, "secondary_value": 4,
-		"ai_priority": 20, "ai_condition": "always",
+		"ai_priority": 20, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/gore.tres")
 
 	_save(_ability("life_drain", "Life Drain", "Drains life from an enemy.", {
 		"cooldown": 2, "target_type": "enemy", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "str", "power": 1.2,
 		"secondary_effect": "life_drain", "secondary_chance": 1.0, "secondary_value": 10,
-		"ai_priority": 25, "ai_condition": "always",
+		"ai_priority": 25, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/life_drain.tres")
 
 	_save(_ability("earthquake", "Earthquake", "Shakes the ground, hitting all enemies.", {
 		"cooldown": 3, "target_type": "all_enemies", "reach": "ranged",
 		"effect_type": "damage", "damage_stat": "str", "power": 0.8,
-		"ai_priority": 30, "ai_condition": "enemies_gte_3",
+		"ai_priority": 30, "ai_condition": _condition("enemies", "alive_count", "gte", 3.0),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/earthquake.tres")
 
 	_save(_ability("flame_snort", "Flame Snort", "Blasts flames at the front row.", {
@@ -278,7 +312,8 @@ func _create_abilities() -> void:
 		"effect_type": "damage", "damage_stat": "str", "power": 1.3,
 		"secondary_effect": "bleed", "secondary_chance": 0.5,
 		"secondary_duration": 2, "secondary_value": 5,
-		"ai_priority": 25, "ai_condition": "always",
+		"ai_priority": 25, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/flame_snort.tres")
 
 	_save(_ability("lava_spit", "Lava Spit", "Spits molten lava at a single target.", {
@@ -286,7 +321,8 @@ func _create_abilities() -> void:
 		"effect_type": "damage", "damage_stat": "str", "power": 1.5,
 		"secondary_effect": "bleed", "secondary_chance": 0.8,
 		"secondary_duration": 3, "secondary_value": 6,
-		"ai_priority": 35, "ai_condition": "always",
+		"ai_priority": 35, "ai_condition": _always(),
+		"ai_target_strategy": "weighted_random",
 	}), "res://data/abilities/monster/lava_spit.tres")
 
 	print("  Created abilities.")
@@ -817,6 +853,19 @@ func _create_test_heroes() -> void:
 
 
 # ---------- Helpers ----------
+
+func _condition(scope: String, property: String = "", compare: String = "", value: float = 0.0) -> Resource:
+	var c: Resource = AIConditionScript.new()
+	c.scope = scope
+	c.property = property
+	c.compare = compare
+	c.value = value
+	return c
+
+
+func _always() -> Resource:
+	return _condition("always")
+
 
 func _ability(id: String, display_name: String, description: String, props: Dictionary) -> Resource:
 	var ab: Resource = AbilityScript.new()

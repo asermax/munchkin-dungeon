@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_vrmnq"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_2q54m"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_xw1jb"]
+
+[sub_resource type="Resource" id="Resource_lkfiw"]
+script = ExtResource("1_2q54m")
 
 [resource]
-script = ExtResource("1_vrmnq")
+script = ExtResource("2_xw1jb")
 id = "smite"
 display_name = "Smite"
 description = "Holy damage against a single enemy."
@@ -12,3 +16,4 @@ reach = "ranged"
 damage_stat = "int"
 power = 1.3
 ai_priority = 10
+ai_condition = SubResource("Resource_lkfiw")

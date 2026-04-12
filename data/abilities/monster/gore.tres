@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_sdoi4"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_evue7"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_ek42b"]
+
+[sub_resource type="Resource" id="Resource_ys0cq"]
+script = ExtResource("1_evue7")
 
 [resource]
-script = ExtResource("1_sdoi4")
+script = ExtResource("2_ek42b")
 id = "gore"
 display_name = "Gore"
 description = "Gores the target, causing bleed."
@@ -14,3 +18,4 @@ secondary_chance = 0.7
 secondary_duration = 3
 secondary_value = 4
 ai_priority = 20
+ai_condition = SubResource("Resource_ys0cq")

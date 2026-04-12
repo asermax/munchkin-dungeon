@@ -1,13 +1,22 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_a6hx2"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_tu0l7"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_5383q"]
+
+[sub_resource type="Resource" id="Resource_pl787"]
+script = ExtResource("1_tu0l7")
+scope = "any_enemy"
+property = "hp_pct"
+compare = "lt"
+value = 0.2
 
 [resource]
-script = ExtResource("1_a6hx2")
+script = ExtResource("2_5383q")
 id = "execute"
 display_name = "Execute"
 description = "Finishes off a weakened enemy for 2.0x damage."
 cooldown = 2
 power = 2.0
 ai_priority = 45
-ai_condition = "enemy_below_20"
+ai_condition = SubResource("Resource_pl787")
+ai_target_strategy = "lowest_hp"

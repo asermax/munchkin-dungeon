@@ -1,9 +1,17 @@
 [gd_resource type="Resource" script_class="AbilityData" format=3]
 
-[ext_resource type="Script" path="res://resources/ability_data.gd" id="1_lcc2k"]
+[ext_resource type="Script" path="res://resources/ai_condition_data.gd" id="1_526qk"]
+[ext_resource type="Script" path="res://resources/ability_data.gd" id="2_0s3tu"]
+
+[sub_resource type="Resource" id="Resource_usvoe"]
+script = ExtResource("1_526qk")
+scope = "any_ally"
+property = "hp_pct"
+compare = "lt"
+value = 0.4
 
 [resource]
-script = ExtResource("1_lcc2k")
+script = ExtResource("2_0s3tu")
 id = "heal"
 display_name = "Heal"
 description = "Restores a significant amount of HP to an ally."
@@ -13,4 +21,5 @@ reach = "ranged"
 effect_type = "heal"
 heal_amount = 30
 ai_priority = 60
-ai_condition = "ally_below_40"
+ai_condition = SubResource("Resource_usvoe")
+ai_target_strategy = "lowest_hp_pct"
