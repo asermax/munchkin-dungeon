@@ -15,7 +15,7 @@ const VERT_PATH_WIDTH := 6.0
 const PADDING := Vector2(48, 0)
 
 # State colors
-const COLOR_VISITED_MOD := Color(0.4, 0.4, 0.4, 0.7)
+const COLOR_VISITED_MOD := Color(0.4, 0.4, 0.4, 1.0)
 const COLOR_CURRENT_GLOW := Color(0.85, 0.65, 0.1, 0.6)
 const COLOR_CURRENT_BORDER := Color(0.9, 0.7, 0.15, 0.85)
 const COLOR_AVAILABLE_GLOW := Color(0.5, 0.45, 0.3, 0.4)

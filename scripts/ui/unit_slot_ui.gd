@@ -8,13 +8,37 @@ extends PanelContainer
 @onready var _dead_sprite: TextureRect = %DeadSprite
 @onready var _hp_bar: ProgressBar = %HpBar
 @onready var _hp_label: Label = %HpLabel
+@onready var _vbox: VBoxContainer = $VBox
 
+var _name_label: Label
 var _unit_info: Dictionary = {}
 var _is_occupied: bool = false
 var _flash_tween: Tween
 
 
 func _ready() -> void:
+	_name_label = Label.new()
+	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_name_label.add_theme_font_size_override("font_size", 13)
+	_name_label.add_theme_color_override("font_color", Color.WHITE)
+	_name_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	_name_label.add_theme_constant_override("shadow_offset_x", 1)
+	_name_label.add_theme_constant_override("shadow_offset_y", 1)
+	_vbox.add_child(_name_label)
+	_vbox.move_child(_name_label, 1)
+	_vbox.add_theme_constant_override("separation", 4)
+
+	# Style HP bar: red fill, black background
+	var fill_style := StyleBoxFlat.new()
+	fill_style.bg_color = Color(0.55, 0.05, 0.05)
+	fill_style.set_corner_radius_all(2)
+	_hp_bar.add_theme_stylebox_override("fill", fill_style)
+
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = Color.BLACK
+	bg_style.set_corner_radius_all(2)
+	_hp_bar.add_theme_stylebox_override("background", bg_style)
+
 	_show_empty()
 
 
@@ -30,6 +54,9 @@ func setup(info: Dictionary) -> void:
 
 	_sprite.visible = true
 	_dead_sprite.visible = false
+	_align_sprite_bottom()
+	_name_label.text = info.get("display_name", "")
+	_name_label.visible = true
 
 	var max_hp: int = info.get("max_hp", 1)
 	var current_hp: int = info.get("current_hp", max_hp)
@@ -95,6 +122,7 @@ func mark_dead() -> void:
 	_sprite.visible = false
 	_hp_bar.visible = false
 	_hp_label.visible = false
+	_name_label.visible = false
 	_dead_sprite.visible = true
 	modulate = Color.WHITE
 
@@ -102,6 +130,7 @@ func mark_dead() -> void:
 func mark_alive() -> void:
 	_sprite.visible = true
 	_dead_sprite.visible = false
+	_name_label.visible = true
 	_hp_bar.visible = true
 	_hp_label.visible = true
 	modulate = Color.WHITE
@@ -115,6 +144,23 @@ func get_unit_id() -> String:
 	return _unit_info.get("unit_id", "")
 
 
+func _align_sprite_bottom() -> void:
+	if _sprite.texture == null:
+		return
+
+	var tex_size := _sprite.texture.get_size()
+	var container_w := 210.0
+	var container_h := 270.0
+	var scale := minf(container_w / tex_size.x, container_h / tex_size.y)
+	var rendered_w := tex_size.x * scale
+	var rendered_h := tex_size.y * scale
+
+	# Position sprite at bottom-center of container
+	_sprite.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_sprite.position = Vector2((container_w - rendered_w) / 2.0, container_h - rendered_h)
+	_sprite.size = Vector2(rendered_w, rendered_h)
+
+
 func _show_empty() -> void:
 	_is_occupied = false
 	_sprite.texture = null
@@ -122,6 +168,11 @@ func _show_empty() -> void:
 	_dead_sprite.visible = false
 	_hp_bar.visible = false
 	_hp_label.text = ""
+
+	if _name_label:
+		_name_label.text = ""
+		_name_label.visible = false
+
 	modulate = Color(1, 1, 1, 0.3)
 
 

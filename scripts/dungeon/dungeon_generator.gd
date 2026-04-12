@@ -9,7 +9,6 @@ const ROOM_WEIGHTS := {
 	"monster": 60,
 	"curse": 18,
 	"treasure": 10,
-	"rest": 12,
 }
 
 const MAX_ATTEMPTS := 3
@@ -32,17 +31,26 @@ static func generate(biome: String, difficulty: String, target_rooms: int) -> Du
 	return dungeon
 
 
+static func _calculate_rest_count(target_rooms: int) -> int:
+	var guaranteed := target_rooms / 6
+	var remainder := target_rooms % 6
+	var extra := 1 if remainder > 0 and randf() < float(remainder) / 6.0 else 0
+	return maxi(1, guaranteed + extra)
+
+
 static func _try_generate(biome: String, difficulty: String, target_rooms: int) -> DungeonData:
 	var dungeon := DungeonData.new()
 	dungeon.biome = biome
 	dungeon.difficulty = difficulty
 	dungeon.max_traversal = target_rooms
 
-	# Step 1: build segment skeleton
-	var segments := _build_skeleton(target_rooms)
+	# Step 1: build segment skeleton (enough branches to house rests)
+	var rest_count := _calculate_rest_count(target_rooms)
+	var branch_count := maxi(rest_count, 2 if target_rooms >= 8 else 1)
+	var segments := _build_skeleton(target_rooms, branch_count)
 
-	# Step 2: assign room types
-	_assign_room_types(segments, target_rooms)
+	# Step 2: assign room types (rests placed in branches first)
+	_assign_room_types(segments, target_rooms, rest_count)
 
 	# Step 3: assign encounters
 	var pool := EncounterPool.new()
@@ -62,7 +70,7 @@ static func _try_generate(biome: String, difficulty: String, target_rooms: int) 
 
 # -- Step 1: Skeleton --
 
-static func _build_skeleton(target_rooms: int) -> Array[DungeonSegmentData]:
+static func _build_skeleton(target_rooms: int, branch_count: int) -> Array[DungeonSegmentData]:
 	var segments: Array[DungeonSegmentData] = []
 
 	# First segment: single monster room
@@ -73,11 +81,6 @@ static func _build_skeleton(target_rooms: int) -> Array[DungeonSegmentData]:
 
 	# Budget for middle segments (excluding first and last)
 	var budget: int = target_rooms - 2
-
-	# Always place at least 1 branch
-	var branch_count := 1
-	if target_rooms >= 8 and budget >= 5:
-		branch_count = 2
 
 	var middle: Array[DungeonSegmentData] = []
 
@@ -140,8 +143,11 @@ static func _single_segment(room_type: String) -> DungeonSegmentData:
 
 # -- Step 2: Room type assignment --
 
-static func _assign_room_types(segments: Array[DungeonSegmentData], target_rooms: int) -> void:
-	# Collect all rooms that need types assigned (excluding first/last which are preset)
+static func _assign_room_types(segments: Array[DungeonSegmentData], target_rooms: int, rest_count: int) -> void:
+	# Place rests in branches first — one rest per branch, random path
+	_place_rests_in_branches(segments, rest_count)
+
+	# Collect all rooms that need types assigned (excluding first/last and rests)
 	var rooms_to_assign: Array[RoomData] = []
 
 	for i: int in range(1, segments.size() - 1):
@@ -151,27 +157,17 @@ static func _assign_room_types(segments: Array[DungeonSegmentData], target_rooms
 			rooms_to_assign.append(seg.room)
 		elif seg.segment_type == "branch":
 			for room: RoomData in seg.path_a:
-				rooms_to_assign.append(room)
+				if room.room_type == "":
+					rooms_to_assign.append(room)
 			for room: RoomData in seg.path_b:
-				rooms_to_assign.append(room)
+				if room.room_type == "":
+					rooms_to_assign.append(room)
 
-	# Mandatory: midpoint rest for 6+ room dungeons
-	var has_rest := false
-
-	if target_rooms >= 6 and not rooms_to_assign.is_empty():
-		var mid_index := rooms_to_assign.size() / 2
-		rooms_to_assign[mid_index].room_type = "rest"
-		has_rest = true
-
-	# Fill unassigned rooms with weighted random types
+	# Fill unassigned rooms with weighted random types (no rest in weights)
 	var has_treasure := false
 
 	for idx: int in rooms_to_assign.size():
 		var room := rooms_to_assign[idx]
-
-		if room.room_type != "":
-			continue
-
 		var room_type := _weighted_pick()
 
 		# No consecutive curses: check previous room in this list
@@ -182,23 +178,49 @@ static func _assign_room_types(segments: Array[DungeonSegmentData], target_rooms
 
 		if room_type == "treasure":
 			has_treasure = true
-		if room_type == "rest":
-			has_rest = true
 
 	# Guarantee treasure in first 4 positions for 5+ room dungeons
 	if target_rooms >= 5 and not has_treasure and not rooms_to_assign.is_empty():
-		var force_idx := mini(2, rooms_to_assign.size() - 1)
-		rooms_to_assign[force_idx].room_type = "treasure"
-
-	# Guarantee at least 1 rest for 6+ rooms if somehow missed
-	if target_rooms >= 6 and not has_rest and not rooms_to_assign.is_empty():
-		for room: RoomData in rooms_to_assign:
-			if room.room_type == "monster":
-				room.room_type = "rest"
+		for i: int in range(mini(3, rooms_to_assign.size())):
+			if rooms_to_assign[i].room_type != "rest":
+				rooms_to_assign[i].room_type = "treasure"
 				break
 
 	# Final consecutive curse fix across all possible traversal paths
 	_fix_consecutive_curses(segments)
+
+
+static func _place_rests_in_branches(segments: Array[DungeonSegmentData], rest_count: int) -> void:
+	for _i: int in rest_count:
+		# Find branches that don't already have a rest on either path
+		var available: Array[DungeonSegmentData] = []
+
+		for seg: DungeonSegmentData in segments:
+			if seg.segment_type != "branch":
+				continue
+
+			var has_rest := false
+
+			for room: RoomData in seg.path_a:
+				if room.room_type == "rest":
+					has_rest = true
+
+			for room: RoomData in seg.path_b:
+				if room.room_type == "rest":
+					has_rest = true
+
+			if not has_rest:
+				available.append(seg)
+
+		if available.is_empty():
+			break
+
+		# Pick a random branch, random path, random room in that path
+		var branch := available[randi() % available.size()]
+		var use_path_a := randf() < 0.5
+		var path: Array[RoomData] = branch.path_a if use_path_a else branch.path_b
+		var room := path[randi() % path.size()]
+		room.room_type = "rest"
 
 
 static func _weighted_pick() -> String:
@@ -399,7 +421,7 @@ static func _validate(dungeon: DungeonData) -> bool:
 			if path[i].room_type == "curse" and path[i - 1].room_type == "curse":
 				return false
 
-	# Check for at least 1 treasure (5+ rooms) and 1 rest (6+ rooms)
+	# Check for at least 1 treasure (5+ rooms)
 	var all_rooms := _get_all_rooms(dungeon.segments)
 	var has_treasure := false
 	var has_rest := false
@@ -413,8 +435,33 @@ static func _validate(dungeon: DungeonData) -> bool:
 	if dungeon.max_traversal >= 5 and not has_treasure:
 		return false
 
-	if dungeon.max_traversal >= 6 and not has_rest:
+	# Must have at least 1 rest
+	if not has_rest:
 		return false
+
+	# All rests must be in branch paths, not single segments
+	for seg: DungeonSegmentData in dungeon.segments:
+		if seg.segment_type == "single" and seg.room.room_type == "rest":
+			return false
+
+	# No branch should have rest on both paths
+	for seg: DungeonSegmentData in dungeon.segments:
+		if seg.segment_type != "branch":
+			continue
+
+		var a_has_rest := false
+		var b_has_rest := false
+
+		for room: RoomData in seg.path_a:
+			if room.room_type == "rest":
+				a_has_rest = true
+
+		for room: RoomData in seg.path_b:
+			if room.room_type == "rest":
+				b_has_rest = true
+
+		if a_has_rest and b_has_rest:
+			return false
 
 	# Must have at least 1 branch
 	var has_branch := false
@@ -457,21 +504,66 @@ static func _force_valid(dungeon: DungeonData) -> void:
 				_set_room_visibility(room)
 				break
 
-	# Force rest if missing and 6+ rooms
-	if dungeon.max_traversal >= 6:
-		var has_rest := false
+	# Fix rests in single segments — move them to monster
+	for seg: DungeonSegmentData in dungeon.segments:
+		if seg.segment_type == "single" and seg.room.room_type == "rest":
+			seg.room.room_type = "monster"
 
-		for room: RoomData in all_rooms:
+	# Fix branches with rest on both paths — convert one to monster
+	for seg: DungeonSegmentData in dungeon.segments:
+		if seg.segment_type != "branch":
+			continue
+
+		var a_has_rest := false
+		var b_has_rest := false
+
+		for room: RoomData in seg.path_a:
 			if room.room_type == "rest":
-				has_rest = true
-				break
+				a_has_rest = true
 
-		if not has_rest:
-			for room: RoomData in all_rooms:
-				if room.room_type == "monster" and room != all_rooms[0]:
-					room.room_type = "rest"
-					_set_room_visibility(room)
+		for room: RoomData in seg.path_b:
+			if room.room_type == "rest":
+				b_has_rest = true
+
+		if a_has_rest and b_has_rest:
+			for room: RoomData in seg.path_b:
+				if room.room_type == "rest":
+					room.room_type = "monster"
 					break
+
+	# Force at least 1 rest in a branch if missing
+	var has_rest := false
+
+	for room: RoomData in all_rooms:
+		if room.room_type == "rest":
+			has_rest = true
+			break
+
+	if not has_rest:
+		_force_rest_in_branch(dungeon.segments)
+
+
+static func _force_rest_in_branch(segments: Array[DungeonSegmentData]) -> void:
+	## Places a rest in the first available branch room (prefers monster rooms).
+	for seg: DungeonSegmentData in segments:
+		if seg.segment_type != "branch":
+			continue
+
+		# Try monster rooms first on a random path
+		var path: Array[RoomData] = seg.path_a if randf() < 0.5 else seg.path_b
+
+		for room: RoomData in path:
+			if room.room_type == "monster":
+				room.room_type = "rest"
+				_set_room_visibility(room)
+				return
+
+		# Fallback: any non-boss, non-treasure room
+		for room: RoomData in path:
+			if room.room_type != "boss" and room.room_type != "treasure":
+				room.room_type = "rest"
+				_set_room_visibility(room)
+				return
 
 
 static func _get_all_rooms(segments: Array[DungeonSegmentData]) -> Array[RoomData]:
