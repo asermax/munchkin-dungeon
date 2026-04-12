@@ -5,6 +5,17 @@ extends Node
 ## Acts as a state machine host: delegates flow to state children.
 ## Owns battle data and provides helper methods for states.
 
+## Battle-local signals — consumed by sibling BattleUI, not routed through EventBus.
+signal battle_setup_completed(hero_units: Array, monster_units: Array)
+signal battle_started()
+signal round_started(round_number: int)
+signal action_resolved(action_info: Dictionary)
+signal unit_damaged(unit_info: Dictionary, amount: int, is_crit: bool)
+signal unit_healed(unit_info: Dictionary, amount: int)
+signal unit_died(unit_info: Dictionary)
+signal boss_phase_changed(unit_info: Dictionary, phase: int)
+signal speed_changed(new_speed: float)
+
 var turn_queue: TurnQueue
 var ability_ai: AbilityAI
 var ability_resolver: AbilityResolver
@@ -93,12 +104,8 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 	all_units.append_array(enemy_units)
 	turn_queue.setup(all_units)
 
-	# Listen for speed change requests from UI
-	if not EventBus.speed_requested.is_connected(set_speed):
-		EventBus.speed_requested.connect(set_speed)
-
 	# Signal UI to set up
-	EventBus.battle_setup.emit(
+	battle_setup_completed.emit(
 		hero_units.map(func(u: BattleUnit) -> Dictionary: return u.get_display_info()),
 		enemy_units.map(func(u: BattleUnit) -> Dictionary: return u.get_display_info()),
 	)
@@ -106,7 +113,7 @@ func setup_battle(heroes: Array, encounter: Resource, hero_state: Dictionary = {
 
 func start_battle() -> void:
 	set_process(true)
-	EventBus.battle_started.emit()
+	battle_started.emit()
 	_transition_to(&"running")
 
 
@@ -122,7 +129,7 @@ func set_speed(speed: float) -> void:
 	if _current_state != null and _current_state.name == "Running":
 		set_process(speed > 0.0)
 
-	EventBus.speed_changed.emit(speed)
+	speed_changed.emit(speed)
 
 
 func _process(delta: float) -> void:
@@ -177,7 +184,7 @@ func get_sides(unit: BattleUnit) -> Dictionary:
 
 func handle_death(unit: BattleUnit) -> void:
 	unit.is_alive = false
-	EventBus.unit_died.emit(unit.get_display_info())
+	unit_died.emit(unit.get_display_info())
 
 	if unit.is_hero:
 		dead_heroes.append(unit)

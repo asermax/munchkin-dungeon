@@ -32,21 +32,17 @@ func _step() -> void:
 
 
 func _execute_turn(unit: BattleUnit) -> void:
-	EventBus.turn_started.emit(unit.get_display_info())
-
 	# Process DoT effects at start of turn
 	var dot_results := unit.tick_effects()
 	_emit_dot_results(dot_results, unit)
 
 	if not unit.is_alive:
 		battle.handle_death(unit)
-		EventBus.turn_ended.emit(unit.get_display_info())
 		_check_battle_end()
 		return
 
 	if unit.is_stunned():
 		_emit_stunned(unit)
-		EventBus.turn_ended.emit(unit.get_display_info())
 		return
 
 	# AI picks action
@@ -54,7 +50,6 @@ func _execute_turn(unit: BattleUnit) -> void:
 	var action: BattleAction = battle.ability_ai.choose_action(unit, sides.allies, sides.enemies, sides.dead_allies)
 
 	if not action.is_valid():
-		EventBus.turn_ended.emit(unit.get_display_info())
 		return
 
 	# Determine the pool of units that targets were drawn from
@@ -70,7 +65,6 @@ func _execute_turn(unit: BattleUnit) -> void:
 	var results: Array[Dictionary] = action.execute(battle.ability_resolver, source_pool)
 	_emit_action_results(results)
 
-	EventBus.turn_ended.emit(unit.get_display_info())
 	_check_battle_end()
 
 
@@ -87,12 +81,10 @@ func _start_new_round() -> void:
 			if unit.is_alive:
 				unit.tick_cooldowns()
 
-	EventBus.round_started.emit(battle.turn_queue.get_round_number())
+	battle.round_started.emit(battle.turn_queue.get_round_number())
 
 
 func _end_round() -> void:
-	EventBus.round_ended.emit(battle.turn_queue.get_round_number())
-
 	if not _check_battle_end():
 		_start_new_round()
 
@@ -116,7 +108,7 @@ func _check_battle_end() -> bool:
 
 func _emit_dot_results(dot_results: Array[Dictionary], unit: BattleUnit) -> void:
 	for dot: Dictionary in dot_results:
-		EventBus.action_resolved.emit({
+		battle.action_resolved.emit({
 			"type": "dot",
 			"target": unit.get_display_info(),
 			"effect": dot.effect,
@@ -125,7 +117,7 @@ func _emit_dot_results(dot_results: Array[Dictionary], unit: BattleUnit) -> void
 
 
 func _emit_stunned(unit: BattleUnit) -> void:
-	EventBus.action_resolved.emit({
+	battle.action_resolved.emit({
 		"type": "stunned",
 		"actor": unit.get_display_info(),
 	})
@@ -139,30 +131,25 @@ func _emit_action_results(results: Array[Dictionary]) -> void:
 		var fresh_target: Dictionary = target_unit.get_display_info() if target_unit != null else result.get("target", {})
 		result["target"] = fresh_target
 
-		EventBus.action_resolved.emit(result)
+		battle.action_resolved.emit(result)
 
 		match result.get("type", ""):
 			"damage":
 				if not result.get("dodged", false):
-					EventBus.unit_damaged.emit(fresh_target, result.get("amount", 0), result.get("crit", false))
+					battle.unit_damaged.emit(fresh_target, result.get("amount", 0), result.get("crit", false))
 
 					if result.get("killed", false):
 						if target_unit != null:
 							battle.handle_death(target_unit)
 
 					elif target_unit != null and target_unit.is_alive and target_unit.check_phase2():
-						EventBus.boss_phase_changed.emit(target_unit.get_display_info(), 2)
+						battle.boss_phase_changed.emit(target_unit.get_display_info(), 2)
 
 			"heal":
-				EventBus.unit_healed.emit(fresh_target, result.get("amount", 0))
-
-			"buff", "debuff", "taunt":
-				var buff_name: String = result.get("effect", result.get("ability_name", ""))
-				var duration: int = result.get("duration", 0)
-				EventBus.buff_applied.emit(fresh_target, buff_name, duration)
+				battle.unit_healed.emit(fresh_target, result.get("amount", 0))
 
 			"resurrect":
 				if target_unit != null:
 					battle.handle_resurrect(target_unit)
 
-				EventBus.unit_healed.emit(fresh_target, result.get("amount", 0))
+				battle.unit_healed.emit(fresh_target, result.get("amount", 0))

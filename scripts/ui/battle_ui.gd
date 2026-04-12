@@ -20,26 +20,29 @@ extends CanvasLayer
 
 const MAX_LOG_LINES: int = 200
 
+var _battle_manager: Node    # BattleManager — typed as Node to avoid circular dependency
 var _unit_slot_map: Dictionary = {}
 var _log_line_count: int = 0
 
 
 func _ready() -> void:
+	_battle_manager = get_parent().get_node("BattleManager")
 	_connect_signals()
 	_connect_speed_buttons()
 
 
 func _connect_signals() -> void:
-	EventBus.battle_setup.connect(_on_battle_setup)
-	EventBus.battle_started.connect(_on_battle_started)
+	_battle_manager.battle_setup_completed.connect(_on_battle_setup)
+	_battle_manager.battle_started.connect(_on_battle_started)
+	_battle_manager.round_started.connect(_on_round_started)
+	_battle_manager.action_resolved.connect(_on_action_resolved)
+	_battle_manager.unit_damaged.connect(_on_unit_damaged)
+	_battle_manager.unit_healed.connect(_on_unit_healed)
+	_battle_manager.unit_died.connect(_on_unit_died)
+	_battle_manager.boss_phase_changed.connect(_on_boss_phase_changed)
+	_battle_manager.speed_changed.connect(_on_speed_changed)
+
 	EventBus.battle_ended.connect(_on_battle_ended)
-	EventBus.round_started.connect(_on_round_started)
-	EventBus.action_resolved.connect(_on_action_resolved)
-	EventBus.unit_damaged.connect(_on_unit_damaged)
-	EventBus.unit_healed.connect(_on_unit_healed)
-	EventBus.unit_died.connect(_on_unit_died)
-	EventBus.boss_phase_changed.connect(_on_boss_phase_changed)
-	EventBus.speed_changed.connect(_on_speed_changed)
 
 	_log_toggle.toggled.connect(_on_log_toggled)
 
@@ -178,7 +181,7 @@ func _on_speed_changed(new_speed: float) -> void:
 
 
 func _on_speed_pressed(speed: float) -> void:
-	EventBus.speed_requested.emit(speed)
+	_battle_manager.set_speed(speed)
 
 
 func _on_log_toggled(pressed: bool) -> void:
